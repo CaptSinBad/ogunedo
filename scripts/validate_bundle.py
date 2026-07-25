@@ -5,7 +5,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import random
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -35,6 +37,30 @@ def registered_draft() -> ref.Parameters:
     return ref.Parameters(0x4F470101, 12_289, 256, 1, 18, 2, 11)
 
 
+def bash_executable() -> str:
+    candidates: list[Path] = []
+    if sys.platform.startswith("win"):
+        for root in (
+            os.environ.get("PROGRAMFILES"),
+            os.environ.get("ProgramW6432"),
+            os.environ.get("PROGRAMFILES(X86)"),
+        ):
+            if root:
+                candidates.extend(
+                    [
+                        Path(root) / "Git" / "bin" / "bash.exe",
+                        Path(root) / "Git" / "usr" / "bin" / "bash.exe",
+                    ]
+                )
+    for candidate in candidates:
+        if candidate.is_file():
+            return str(candidate)
+    found = shutil.which("bash")
+    if found is None:
+        raise RuntimeError("bash not found; install Git Bash or another POSIX shell")
+    return found
+
+
 def validate_structured_files(results: dict) -> None:
     toml_files = source_files("*.toml")
     json_files = source_files("*.json")
@@ -56,8 +82,9 @@ def validate_structured_files(results: dict) -> None:
 
 def validate_shell_and_python(results: dict) -> None:
     shell_files = list((ROOT / "scripts").glob("*.sh"))
+    bash = bash_executable()
     for path in shell_files:
-        subprocess.run(["bash", "-n", path.relative_to(ROOT).as_posix()], cwd=ROOT, check=True)
+        subprocess.run([bash, "-n", path.relative_to(ROOT).as_posix()], cwd=ROOT, check=True)
     subprocess.run([sys.executable, "-m", "compileall", "-q", str(ROOT / "scripts")], check=True)
     results["script_syntax"] = {
         "shell_files": len(shell_files),

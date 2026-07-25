@@ -121,23 +121,45 @@ Implemented in source:
 - `verify` and `vkey` use local verifier setup and do not read network credentials;
 - network proof saving is atomic and followed by a fresh credential-free verifier subprocess.
 
-Not completed:
+Additional WSL network-path evidence collected on 2026-07-25:
 
-- no network preflight was run against a funded requester wallet in this environment;
-- no paid network request was submitted;
-- no request ID, explorer link, PROVE cost, proof, receipt, or network verification report exists yet.
+- Ubuntu WSL2 was used because the Windows host target cannot compile upstream `sp1-jit`.
+- `protobuf-compiler` was installed in WSL after `sp1-prover-types` failed to find `protoc`; `protoc --version` reported `libprotoc 3.21.12`.
+- `bash scripts/install_sp1.sh` completed and installed `cargo-prove sp1 (150e629 2026-05-23T01:30:54.499183867Z)` plus the `succinct` Rust toolchain.
+- `RUSTUP_TOOLCHAIN=succinct rustc --version` reported `rustc 1.93.0-dev`.
+- The first WSL `network-estimate` compile exposed a transitive dependency mismatch: `alloy-consensus 1.0.30` accepted `alloy-tx-macros 1.8.3`, whose derive output did not match the older `alloy-consensus` trait surface.
+- The source now pins `alloy-tx-macros = "=1.0.30"` in `ogunedo-cli`; `Cargo.lock` was regenerated and committed.
+- The SP1 guest ELF build completed through `sp1-build`; the build log reported `ogunedo-program built at 2026-07-25 12:51:06`.
+- `network-estimate` completed successfully in WSL with `CARGO_BUILD_JOBS=2` and wrote the ignored sanitized preflight report `artifacts/network-preflight.json`.
+- The successful preflight used the public benchmark fixture, proof mode `compressed`, SP1 SDK `6.2.2`, circuit version `v6.1.0`, and reported maximum possible spend `0.259605000005886633 PROVE`.
+- The preflight reported requester balance `0` atomic PROVE. No private key was printed, recorded, staged, packaged, or committed.
+- A guarded `network-prove` attempt was launched with the exact approval phrase from the preflight. It ran from `2026-07-25T13:04:51+01:00` to `2026-07-25T13:30:40+01:00`, consumed high local CPU before emitting a request ID, and was interrupted to protect the laptop.
+- The stopped `network-prove` attempt exited `130` and produced no proof file, no manifest, no receipt, and no explorer/request ID. This is recorded as a local requester/setup resource boundary, not as a protocol failure and not as a failed remote proof.
+
+Peak resource observations from the WSL network-path attempts:
+
+- lowest observed Windows free physical RAM during WSL estimate/prove work: approximately `0.564 GiB`;
+- WSL memory remained healthy, with approximately `3.5 GiB` or more available during the CPU-heavy proof attempt;
+- WSL swap was unused except for a negligible transient `44 KiB` during compilation;
+- lowest observed free disk on `C:` after SP1 installation/build artifacts: approximately `19.215 GiB`;
+- highest observed single `rustc` RSS during the host/guest build path: approximately `1.72 GiB`;
+- observed `network-prove` requester process RSS: approximately `399 MiB`;
+- observed `network-prove` requester CPU before interruption: approximately `770%`, indicating local CPU-heavy setup before request evidence was written.
+
+Still not completed:
+
+- no successful paid network request was observed;
+- no request ID, explorer link, actual PROVE cost, proof, receipt, or network verification report exists yet;
+- because the preflight requester balance was `0`, a funded requester wallet or supported prover-network environment is still required before a real remote proof can complete.
 
 ## Not completed locally
 
 These production gates have **not** been claimed as completed:
 
-- local SP1 toolchain installation through `cargo prove`;
-- SP1 guest ELF generation through the SP1 build toolchain;
 - SP1 execution of the relation;
 - compressed proof generation;
 - Groth16 proof generation;
-- Succinct Prover Network preflight against a live funded requester;
-- Succinct Prover Network compressed or Groth16 paid request;
+- successful Succinct Prover Network compressed or Groth16 paid request;
 - proof serialization/reload verification;
 - verification-key extraction and pinning;
 - proof tampering matrix;
@@ -147,7 +169,7 @@ These production gates have **not** been claimed as completed:
 - pull request creation;
 - release candidate tag creation.
 
-`cargo prove` and `gh` were not installed in this environment.
+`cargo prove` is now installed in WSL through the pinned SP1 installer. `gh` was not used by this local status run.
 
 ## Cryptographic deployment status
 
