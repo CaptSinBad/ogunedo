@@ -512,6 +512,8 @@ fn deterministic_instance(choice: ParameterChoice, seed_text: &str) -> Result<In
             context,
         },
         witness: Some(witness),
+        safe_for_remote_proving: false,
+        remote_proving_policy: None,
     })
 }
 
