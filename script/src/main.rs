@@ -1,12 +1,15 @@
 #![forbid(unsafe_code)]
 
-use std::{fs, path::{Path, PathBuf}};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
 use anyhow::{bail, Context, Result};
 use clap::{Parser, Subcommand, ValueEnum};
 use ogunedo_core::{
-    compute_target, is_production_approved, parameters, relation_digest, statement_digest,
-    verify_relation, PublicStatement, PublicValues, Witness, DEV_PARAMETERS_ID,
+    compute_target, is_production_approved, parameter_digest, parameters, relation_digest,
+    statement_digest, verify_relation, PublicStatement, PublicValues, Witness, DEV_PARAMETERS_ID,
     DRAFT_PARAMETERS_ID, PROTOCOL_VERSION,
 };
 use rand::{Rng, SeedableRng};
@@ -22,7 +25,11 @@ const MAX_INSTANCE_BYTES: u64 = 64 * 1024 * 1024;
 const MAX_PROOF_BYTES: u64 = 1024 * 1024 * 1024;
 
 #[derive(Debug, Parser)]
-#[command(name = "ogunedo", version, about = "Ogunedo K-ISIS SP1 proof-of-knowledge CLI")]
+#[command(
+    name = "ogunedo",
+    version,
+    about = "Ogunedo K-ISIS SP1 proof-of-knowledge CLI"
+)]
 struct Cli {
     #[command(subcommand)]
     command: Command,
@@ -133,7 +140,11 @@ fn write_instance(path: &Path, instance: &InstanceFile) -> Result<()> {
     let mut options = fs::OpenOptions::new();
     options.create(true).truncate(true).write(true);
     #[cfg(unix)]
-    let mode = if instance.witness.is_some() { 0o600 } else { 0o644 };
+    let mode = if instance.witness.is_some() {
+        0o600
+    } else {
+        0o644
+    };
     #[cfg(unix)]
     {
         use std::os::unix::fs::OpenOptionsExt;
@@ -172,16 +183,24 @@ fn stdin_for(instance: &InstanceFile) -> Result<SP1Stdin> {
 
 fn check_public_values(values: &PublicValues, statement: &PublicStatement) -> Result<()> {
     if values.protocol_version != PROTOCOL_VERSION {
-        bail!("proof committed unsupported protocol version {}", values.protocol_version);
+        bail!(
+            "proof committed unsupported protocol version {}",
+            values.protocol_version
+        );
     }
     if values.parameter_id != statement.parameter_id {
         bail!("proof parameter id does not match statement");
     }
+    let selected =
+        parameters(statement.parameter_id).context("proof committed unknown parameter set")?;
     if values.statement_digest != statement_digest(statement) {
         bail!("proof is valid for a different public statement");
     }
     if values.relation_digest != relation_digest() {
         bail!("proof relation-domain digest does not match Ogunedo K-ISIS v1");
+    }
+    if values.parameter_digest != parameter_digest(selected) {
+        bail!("proof parameter digest does not match the registered parameter set");
     }
     Ok(())
 }
@@ -229,27 +248,40 @@ async fn main() -> Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
-        Command::Generate { parameters, seed, output } => {
+        Command::Generate {
+            parameters,
+            seed,
+            output,
+        } => {
             let instance = deterministic_instance(parameters, &seed)?;
             verify_relation(&instance.statement, require_witness(&instance)?)?;
             write_instance(&output, &instance)?;
             println!("wrote private witness instance to {}", output.display());
             println!("protect this file; use `ogunedo redact` before sharing it");
-            println!("statement digest: 0x{}", hex::encode(statement_digest(&instance.statement)));
+            println!(
+                "statement digest: 0x{}",
+                hex::encode(statement_digest(&instance.statement))
+            );
         }
         Command::Redact { instance, output } => {
             let mut instance = read_instance(&instance)?;
             instance.witness = None;
             write_instance(&output, &instance)?;
             println!("wrote public statement to {}", output.display());
-            println!("statement digest: 0x{}", hex::encode(statement_digest(&instance.statement)));
+            println!(
+                "statement digest: 0x{}",
+                hex::encode(statement_digest(&instance.statement))
+            );
         }
         Command::Check { instance } => {
             let instance = read_instance(&instance)?;
             let receipt = verify_relation(&instance.statement, require_witness(&instance)?)?;
             println!("relation accepted");
             println!("parameter set: {}", receipt.parameters.name);
-            println!("statement digest: 0x{}", hex::encode(receipt.public_values.statement_digest));
+            println!(
+                "statement digest: 0x{}",
+                hex::encode(receipt.public_values.statement_digest)
+            );
         }
         Command::Execute { instance } => {
             let instance = read_instance(&instance)?;
@@ -263,8 +295,14 @@ async fn main() -> Result<()> {
                 bail!("execution public values contain trailing bytes");
             }
             check_public_values(&values, &instance.statement)?;
-            println!("execution accepted in {} cycles", report.total_instruction_count());
-            println!("statement digest: 0x{}", hex::encode(values.statement_digest));
+            println!(
+                "execution accepted in {} cycles",
+                report.total_instruction_count()
+            );
+            println!(
+                "statement digest: 0x{}",
+                hex::encode(values.statement_digest)
+            );
         }
         Command::Prove {
             instance,
@@ -300,7 +338,10 @@ async fn main() -> Result<()> {
             println!("proof generated and verified: {}", output.display());
             println!("mode: {:?}", mode);
             println!("vkey: {:?}", proving_key.verifying_key().bytes32());
-            println!("statement digest: 0x{}", hex::encode(values.statement_digest));
+            println!(
+                "statement digest: 0x{}",
+                hex::encode(values.statement_digest)
+            );
         }
         Command::Verify { proof, statement } => {
             let instance = read_instance(&statement)?;
@@ -312,7 +353,10 @@ async fn main() -> Result<()> {
             let values = decode_public_values(&proof)?;
             check_public_values(&values, &instance.statement)?;
             println!("proof verified and bound to statement");
-            println!("statement digest: 0x{}", hex::encode(values.statement_digest));
+            println!(
+                "statement digest: 0x{}",
+                hex::encode(values.statement_digest)
+            );
         }
         Command::Vkey => {
             let client = ProverClient::from_env().await;

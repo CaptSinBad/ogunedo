@@ -26,6 +26,7 @@ The relation implementation includes:
 - negacyclic NTT multiplication in `Z_q[X]/(X^N+1)`;
 - coefficient and squared-Euclidean-norm bounds;
 - exact statement-to-proof binding;
+- registered parameter digest binding;
 - versioned relation-domain separation;
 - negative tests and an independent Python reference model;
 - a parameter registry that refuses unreviewed parameters unless the caller opts in.
@@ -35,18 +36,18 @@ The relation implementation includes:
 
 ## Build status
 
-The source bundle has passed the independent Python arithmetic model, deterministic test-vector regeneration, structured-file parsing, and script syntax checks recorded in [`VALIDATION_REPORT.json`](VALIDATION_REPORT.json). The artifact environment did not contain Rust or the SP1 toolchain and had no outbound DNS, so it could not compile the Rust workspace or generate an SP1 proof here. [`BUILD_STATUS.md`](BUILD_STATUS.md) records the exact remaining clean-room checks.
+This source tree has passed local `ogunedo-core` Rust tests, clippy, no-default-features compilation, documentation generation, SP1 guest crate checking, the independent Python arithmetic model, deterministic test-vector regeneration, structured-file parsing, and script syntax checks recorded in [`VALIDATION_REPORT.json`](VALIDATION_REPORT.json). The SP1 host CLI and full workspace do not compile on this Windows host because an upstream SP1 JIT dependency requires POSIX APIs; no local SP1 proof is claimed. [`BUILD_STATUS.md`](BUILD_STATUS.md) records the exact commands and blocked gates.
 
 ## Repository layout
 
 ```text
 ogunedo/
-├── crates/ogunedo-core/   # Canonical relation and arithmetic
-├── program/               # SP1 guest program
-├── script/                # Prover/verifier CLI
-├── fixtures/              # Reproducible development instance
-├── docs/                  # Specification and security documents
-└── scripts/               # Reference checks and repository bootstrap
+|-- crates/ogunedo-core/   # Canonical relation and arithmetic
+|-- program/               # SP1 guest program
+|-- script/                # Prover/verifier CLI
+|-- fixtures/              # Reproducible development instance
+|-- docs/                  # Specification and security documents
+`-- scripts/               # Reference checks and repository bootstrap
 ```
 
 ## Security statement
@@ -59,7 +60,7 @@ For a public statement `S = (params, seed_A, u, context)`, a valid proof attests
 4. every coefficient of `w` is within the registered bound;
 5. `||w||_2^2` is within the registered bound;
 6. the deterministic matrix `A = Expand(seed_A)` satisfies `A w = u` in the negacyclic ring;
-7. the committed public values contain the canonical digest of `S` and the Ogunedo relation-domain digest.
+7. the committed public values contain the canonical digest of `S`, the Ogunedo relation-domain digest, and the registered parameter digest.
 
 The verifier must supply the expected public statement and compare its digest before accepting the proof. The included CLI verifies the SP1 proof first, then performs the explicit digest and domain checks before reporting acceptance.
 
@@ -150,6 +151,7 @@ protocol_version
 parameter_id
 SHA256(canonical_public_statement)
 SHA256("OGUNEDO-KISIS-RELATION-V1\0")
+SHA256(canonical_registered_parameter_set)
 ```
 
 The private witness is never committed by Ogunedo. The external verifier binds the proof to the expected statement by recomputing the statement digest.
@@ -178,6 +180,8 @@ Commit the resulting `Cargo.lock` and record the SP1 verification-key commitment
 - [Threat model](docs/THREAT_MODEL.md)
 - [Name and attribution](docs/NAME_AND_ATTRIBUTION.md)
 - [Repository bootstrap](docs/REPOSITORY_BOOTSTRAP.md)
+- [Implementation audit](docs/IMPLEMENTATION_AUDIT.md)
+- [Reproducible builds](docs/REPRODUCIBLE_BUILDS.md)
 
 ## License
 

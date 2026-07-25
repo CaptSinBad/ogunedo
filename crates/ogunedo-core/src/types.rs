@@ -25,4 +25,5 @@ pub struct PublicValues {
     pub parameter_id: u32,
     pub statement_digest: [u8; 32],
     pub relation_digest: [u8; 32],
+    pub parameter_digest: [u8; 32],
 }

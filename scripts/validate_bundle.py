@@ -7,14 +7,28 @@ import hashlib
 import json
 import random
 import subprocess
-import tomllib
+import sys
 from pathlib import Path
 
 import yaml
 
 import reference_check as ref
 
+try:
+    import tomllib
+except ModuleNotFoundError:  # Python 3.10 compatibility.
+    import tomli as tomllib
+
 ROOT = Path(__file__).resolve().parents[1]
+EXCLUDED_TREE_PARTS = {".git", "target", "dist", "artifacts", "proofs", "benchmarks"}
+
+
+def source_files(pattern: str) -> list[Path]:
+    return [
+        path
+        for path in ROOT.rglob(pattern)
+        if not any(part in EXCLUDED_TREE_PARTS for part in path.relative_to(ROOT).parts)
+    ]
 
 
 def registered_draft() -> ref.Parameters:
@@ -22,9 +36,9 @@ def registered_draft() -> ref.Parameters:
 
 
 def validate_structured_files(results: dict) -> None:
-    toml_files = list(ROOT.rglob("*.toml"))
-    json_files = list(ROOT.rglob("*.json"))
-    yaml_files = list(ROOT.rglob("*.yml"))
+    toml_files = source_files("*.toml")
+    json_files = source_files("*.json")
+    yaml_files = source_files("*.yml")
     for path in toml_files:
         with path.open("rb") as handle:
             tomllib.load(handle)
@@ -43,8 +57,8 @@ def validate_structured_files(results: dict) -> None:
 def validate_shell_and_python(results: dict) -> None:
     shell_files = list((ROOT / "scripts").glob("*.sh"))
     for path in shell_files:
-        subprocess.run(["bash", "-n", str(path)], check=True)
-    subprocess.run(["python3", "-m", "compileall", "-q", str(ROOT / "scripts")], check=True)
+        subprocess.run(["bash", "-n", path.relative_to(ROOT).as_posix()], cwd=ROOT, check=True)
+    subprocess.run([sys.executable, "-m", "compileall", "-q", str(ROOT / "scripts")], check=True)
     results["script_syntax"] = {
         "shell_files": len(shell_files),
         "python_files": len(list((ROOT / "scripts").glob("*.py"))),
@@ -53,7 +67,7 @@ def validate_shell_and_python(results: dict) -> None:
 
 
 def validate_dev_fixture(results: dict) -> None:
-    subprocess.run(["python3", str(ROOT / "scripts" / "reference_check.py")], check=True)
+    subprocess.run([sys.executable, str(ROOT / "scripts" / "reference_check.py")], check=True)
     fixture = json.loads((ROOT / "fixtures" / "dev-instance.json").read_text())
     statement = fixture["statement"]
     witness = fixture["witness"]["coeffs"]
@@ -160,9 +174,9 @@ def main() -> None:
     results: dict = {
         "validator": "Ogunedo offline bundle validator v1",
         "limitations": [
-            "Rust and the SP1 toolchain are unavailable in the artifact container.",
-            "This report does not claim that Cargo compilation or SP1 proof generation ran here.",
-            "The SP1 integration workflow must run after the repository is pushed.",
+            "This report is an offline source-tree validator.",
+            "It does not claim that SP1 execution or proof generation ran here.",
+            "Rust/SP1 build status is tracked separately in BUILD_STATUS.md.",
         ],
     }
     validate_structured_files(results)

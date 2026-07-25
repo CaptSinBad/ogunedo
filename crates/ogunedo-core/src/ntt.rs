@@ -5,11 +5,19 @@ use crate::Parameters;
 
 fn add_mod(a: u32, b: u32, q: u32) -> u32 {
     let sum = a + b;
-    if sum >= q { sum - q } else { sum }
+    if sum >= q {
+        sum - q
+    } else {
+        sum
+    }
 }
 
 fn sub_mod(a: u32, b: u32, q: u32) -> u32 {
-    if a >= b { a - b } else { a + q - b }
+    if a >= b {
+        a - b
+    } else {
+        a + q - b
+    }
 }
 
 fn mul_mod(a: u32, b: u32, q: u32) -> u32 {
@@ -78,10 +86,18 @@ pub fn negacyclic_mul(a: &[u32], b: &[u32], parameters: Parameters) -> Vec<u32> 
     let n = parameters.ring_degree;
     assert_eq!(a.len(), n, "left polynomial length mismatch");
     assert_eq!(b.len(), n, "right polynomial length mismatch");
-    assert_eq!((parameters.q - 1) as usize % (2 * n), 0, "2N must divide q-1");
+    assert_eq!(
+        (parameters.q - 1) as usize % (2 * n),
+        0,
+        "2N must divide q-1"
+    );
 
     let q = parameters.q;
-    let psi = mod_pow(parameters.primitive_root, ((q - 1) as usize / (2 * n)) as u64, q);
+    let psi = mod_pow(
+        parameters.primitive_root,
+        ((q - 1) as usize / (2 * n)) as u64,
+        q,
+    );
     let psi_inverse = mod_inverse(psi, q);
     let omega = mul_mod(psi, psi, q);
 

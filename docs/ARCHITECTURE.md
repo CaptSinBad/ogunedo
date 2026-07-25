@@ -22,7 +22,7 @@ Public statement                         Private witness
                            |
                            v
                     Ogunedo verifier
-       pins program vkey + recomputes statement digest
+       pins program vkey + recomputes statement and parameter digests
 ```
 
 ## Trust minimization

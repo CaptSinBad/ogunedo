@@ -43,7 +43,7 @@ const DRAFT_PARAMETERS: Parameters = Parameters {
     rows: 1,
     columns: 18,
     coefficient_bound: 2,
-    l2_bound_squared: 18_432,
+    l2_bound_squared: 10_240,
     primitive_root: 11,
     status: ParameterStatus::CryptanalysisRequired,
 };

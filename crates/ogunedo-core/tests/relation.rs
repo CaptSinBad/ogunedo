@@ -1,7 +1,7 @@
 use ogunedo_core::{
-    compute_target, negacyclic_mul, negacyclic_mul_naive, parameters, statement_digest,
-    verify_relation, PublicStatement, Witness, DEV_PARAMETERS_ID, DRAFT_PARAMETERS_ID,
-    PROTOCOL_VERSION,
+    compute_target, negacyclic_mul, negacyclic_mul_naive, parameter_digest, parameters,
+    relation_digest, statement_digest, verify_relation, PublicStatement, Witness,
+    DEV_PARAMETERS_ID, DRAFT_PARAMETERS_ID, PROTOCOL_VERSION,
 };
 
 fn deterministic_witness(length: usize, bound: i32) -> Witness {
@@ -11,6 +11,16 @@ fn deterministic_witness(length: usize, bound: i32) -> Witness {
             .map(|index| ((index as i32 * 7 + 3) % span) - bound)
             .collect(),
     }
+}
+
+fn hex(bytes: [u8; 32]) -> String {
+    const DIGITS: &[u8; 16] = b"0123456789abcdef";
+    let mut out = String::with_capacity(64);
+    for byte in bytes {
+        out.push(DIGITS[(byte >> 4) as usize] as char);
+        out.push(DIGITS[(byte & 0x0f) as usize] as char);
+    }
+    out
 }
 
 #[test]
@@ -41,7 +51,12 @@ fn valid_relation_round_trip() {
         context: [0x24; 32],
     };
     let receipt = verify_relation(&statement, &witness).unwrap();
-    assert_eq!(receipt.public_values.statement_digest, statement_digest(&statement));
+    assert_eq!(
+        receipt.public_values.statement_digest,
+        statement_digest(&statement)
+    );
+    assert_eq!(receipt.public_values.relation_digest, relation_digest());
+    assert_eq!(receipt.public_values.parameter_digest, parameter_digest(p));
 }
 
 #[test]
@@ -105,4 +120,33 @@ fn digest_binds_context() {
     let left_digest = statement_digest(&left);
     left.context[0] = 1;
     assert_ne!(left_digest, statement_digest(&left));
+}
+
+#[test]
+fn registered_draft_profile_matches_v1_norm_bound() {
+    let p = parameters(DRAFT_PARAMETERS_ID).unwrap();
+    assert_eq!(p.q, 12_289);
+    assert_eq!(p.ring_degree, 256);
+    assert_eq!(p.rows, 1);
+    assert_eq!(p.columns, 18);
+    assert_eq!(p.coefficient_bound, 2);
+    assert_eq!(p.l2_bound_squared, 10_240);
+}
+
+#[test]
+fn canonical_digests_are_frozen_for_v1() {
+    let dev = parameters(DEV_PARAMETERS_ID).unwrap();
+    let draft = parameters(DRAFT_PARAMETERS_ID).unwrap();
+    assert_eq!(
+        hex(relation_digest()),
+        "12ca32d006589f7fa7b3edaa4c1c19d3940661ae8528917738878dfe40d88feb"
+    );
+    assert_eq!(
+        hex(parameter_digest(dev)),
+        "bbf88444329630d91a6cade2f16681dcdd87eefc59e1b652ee799a1e77da97fe"
+    );
+    assert_eq!(
+        hex(parameter_digest(draft)),
+        "e8c8d261c2d5082a300d241434465245371db7c68b0d5df8e3a05f233af19611"
+    );
 }

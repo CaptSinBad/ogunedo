@@ -193,8 +193,8 @@ def main() -> None:
         "statement_digest_hex": statement_digest(instance["statement"]),
         "relation_digest_hex": hashlib.sha256(RELATION_DOMAIN).hexdigest(),
         "ntt_matches_naive": True,
-        "private_fixture": str(fixture.relative_to(ROOT)),
-        "public_fixture": str(public_fixture.relative_to(ROOT)),
+        "private_fixture": fixture.relative_to(ROOT).as_posix(),
+        "public_fixture": public_fixture.relative_to(ROOT).as_posix(),
     }
     (ROOT / "fixtures" / "reference-report.json").write_text(json.dumps(report, indent=2) + "\n")
     print(json.dumps(report, indent=2))

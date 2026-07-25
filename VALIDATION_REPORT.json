@@ -1,9 +1,9 @@
 {
   "validator": "Ogunedo offline bundle validator v1",
   "limitations": [
-    "Rust and the SP1 toolchain are unavailable in the artifact container.",
-    "This report does not claim that Cargo compilation or SP1 proof generation ran here.",
-    "The SP1 integration workflow must run after the repository is pushed."
+    "This report is an offline source-tree validator.",
+    "It does not claim that SP1 execution or proof generation ran here.",
+    "Rust/SP1 build status is tracked separately in BUILD_STATUS.md."
   ],
   "structured_files": {
     "toml": 8,

@@ -26,6 +26,18 @@ A w = u in R_q^r
 
 and the registered coefficient and squared Euclidean norm bounds hold.
 
+The v1 draft engineering profile is:
+
+```text
+parameter_id          = 0x4f470101
+R_q                   = Z_12289[X] / (X^256 + 1)
+module shape          = 1 x 18
+coefficient bound     = |w_i| <= 2
+squared norm bound    = ||w||_2^2 <= 10240
+primitive generator   = 11
+status                = CryptanalysisRequired
+```
+
 ## 3. Public statement
 
 ```rust
@@ -122,6 +134,7 @@ PublicValues {
     parameter_id,
     statement_digest,
     relation_digest,
+    parameter_digest,
 }
 ```
 
@@ -131,6 +144,35 @@ where
 relation_digest = SHA256("OGUNEDO-KISIS-RELATION-V1\0").
 ```
 
+The guest also commits the canonical parameter digest:
+
+```text
+SHA256(
+    "OGUNEDO-PARAMETERS-V1\0" ||
+    parameter_id_le32 ||
+    parameter_name_length_le64 ||
+    parameter_name_utf8 ||
+    q_le32 ||
+    ring_degree_le64 ||
+    rows_le64 ||
+    columns_le64 ||
+    coefficient_bound_i32_le ||
+    l2_bound_squared_le64 ||
+    primitive_root_le32 ||
+    status_code_le32
+)
+```
+
+Status codes are `0 = DevelopmentOnly`, `1 = CryptanalysisRequired`, and `2 = ProductionApproved`.
+
+The frozen v1 implementation digests are:
+
+```text
+relation_digest              = 12ca32d006589f7fa7b3edaa4c1c19d3940661ae8528917738878dfe40d88feb
+development_parameter_digest = bbf88444329630d91a6cade2f16681dcdd87eefc59e1b652ee799a1e77da97fe
+draft_parameter_digest       = e8c8d261c2d5082a300d241434465245371db7c68b0d5df8e3a05f233af19611
+```
+
 ## 9. Verification rule
 
 A verifier accepts only when:
@@ -138,10 +180,15 @@ A verifier accepts only when:
 1. SP1 verifies the proof under the expected program verification key;
 2. the committed protocol and parameter identifiers are expected;
 3. the committed statement digest equals the canonical digest of the verifier-supplied statement;
-4. the committed relation digest equals the Ogunedo K-ISIS v1 digest.
+4. the committed relation digest equals the Ogunedo K-ISIS v1 digest;
+5. the committed parameter digest equals the locally registered parameter set.
 
-Checking only SP1 proof validity without steps 2–4 is an integration error.
+Checking only SP1 proof validity without steps 2-5 is an integration error.
 
-## 10. Versioning
+## 10. Keller compiler status
+
+The v1 source tree includes a K-ISIS relation and SP1 guest/verifier integration. It does not yet include a production determinant-one Keller compiler crate. The Keller layer remains a research component and must not be represented as part of the executed SP1 proof relation until a concrete implementation, descriptor format, digest, decoder, and tests are added.
+
+## 11. Versioning
 
 Any change to serialization, matrix expansion, norm semantics, ring arithmetic, or public outputs requires a new protocol version or relation-domain string. Parameter changes require a new parameter identifier.

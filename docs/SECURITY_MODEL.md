@@ -5,7 +5,7 @@
 Ogunedo K-ISIS aims to provide:
 
 - **knowledge soundness:** a valid proof implies the SP1 program accepted a witness satisfying the registered relation;
-- **statement binding:** a proof cannot be replayed as proof for a different public statement without finding a SHA-256 collision or breaking SP1 soundness;
+- **statement and parameter binding:** a proof cannot be replayed as proof for a different public statement or locally registered parameter set without finding a SHA-256 collision or breaking SP1 soundness;
 - **witness privacy:** Ogunedo commits no witness data; privacy additionally depends on the selected SP1 proving mode and its documented zero-knowledge guarantees;
 - **deterministic semantics:** independent implementations derive the same matrix, target equation, and public digest.
 
@@ -34,7 +34,7 @@ The expected SP1 program verification key must be pinned by the application. Acc
 
 ### Parameter downgrade
 
-Parameter identifiers are digest-bound and committed. Applications must maintain an allowlist and reject development or retired identifiers.
+Parameter identifiers and parameter digests are committed. Applications must maintain an allowlist and reject development or retired identifiers.
 
 ### Non-canonical targets
 

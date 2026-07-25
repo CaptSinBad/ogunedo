@@ -11,7 +11,10 @@ pub fn derive_matrix_polynomial(
     column: usize,
     parameters: Parameters,
 ) -> Vec<u32> {
-    assert!(parameters.q <= u16::MAX as u32, "parameter modulus exceeds expander width");
+    assert!(
+        parameters.q <= u16::MAX as u32,
+        "parameter modulus exceeds expander width"
+    );
 
     let q = parameters.q;
     let rejection_limit = (u16::MAX as u32 + 1) - ((u16::MAX as u32 + 1) % q);
@@ -38,7 +41,9 @@ pub fn derive_matrix_polynomial(
             }
         }
 
-        block_counter = block_counter.checked_add(1).expect("matrix expander counter overflow");
+        block_counter = block_counter
+            .checked_add(1)
+            .expect("matrix expander counter overflow");
     }
 
     output

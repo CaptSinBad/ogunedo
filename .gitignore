@@ -1,6 +1,8 @@
 /target
 /proofs
-/artifacts
+/artifacts/*
+!/artifacts/.gitkeep
+!/artifacts/toolchain.json
 .env
 .DS_Store
 *.bin
