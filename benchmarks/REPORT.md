@@ -16,6 +16,10 @@ WSL network-prove: stopped with exit 130 after local CPU-heavy setup produced no
 WSL cargo check -p ogunedo-cli --locked after receipt hardening: passed in 9m14s
 WSL network-estimate after receipt hardening: passed, refreshed maximum possible spend 0.258933000005886633 PROVE
 WSL network-prove balance guard: refused before submission because requester balance was 0 atomic PROVE
+WSL network-estimate after requester funding: passed, requester balance 10 PROVE, maximum possible spend 0.259605000005886633 PROVE
+WSL compressed network-prove after approval: submitted request 0xe574b1b1770f22b015aea357466f539d0d5e899b2452640a430aa544a9398da6 and downloaded a 1,272,673-byte candidate proof
+WSL compressed requester verification: interrupted with exit 130 at memory safety boundary before completed receipt/manifest
+WSL credential-free verify of downloaded proof: interrupted with exit 130 at memory safety boundary
 ```
 
 Resource evidence from `artifacts/local-resource-report.json`:
@@ -81,21 +85,28 @@ WSL swap: unused except for a transient 44 KiB during compilation
 latest post-check Windows snapshot: 1.006 GiB free physical RAM, 13.472 GiB free virtual memory, 18.039 GiB free disk on C:
 latest post-check WSL snapshot: 5.1 GiB available memory, 2.0 GiB swap free, 19 GiB available on /mnt/c
 latest post-balance-gate Windows snapshot: 3.647 GiB free physical RAM, 16.601 GiB free virtual memory, 18.157 GiB free disk on C:
+pre-submit compressed request snapshot: 4.103 GiB free Windows physical RAM, 19.144 GiB free virtual memory, 21.159 GiB free disk on C:, WSL 5.1 GiB available memory, WSL swap free
+compressed requester verification peak: child verifier RSS ~3,785,148 KiB, WSL free memory ~78 MiB, WSL available memory ~1.5 GiB, Windows free physical RAM ~0.765 GiB
+credential-free verification peak: verifier RSS ~3,919,668 KiB, WSL free memory ~78 MiB, WSL available memory ~1.5 GiB
+post-stop recovery snapshot: 2.267 GiB free Windows physical RAM, 12.742 GiB free virtual memory, 21.068 GiB free disk on C:, WSL 5.2 GiB available memory
+downloaded compressed proof SHA-256: 32971efa5337fcefe0094228a99459cbcf0f227ee1068359e184182645ba8474
 ```
 
-The stopped `network-prove` run is recorded as a local requester/setup resource boundary. It is not a protocol failure and not a failed remote proof, because no request ID or receipt was emitted.
+The first stopped `network-prove` run is recorded as a local requester/setup resource boundary. It is not a protocol failure and not a failed remote proof, because no request ID or receipt was emitted.
+
+The funded compressed request did submit and download a candidate proof, but the local laptop did not complete immediate or credential-free verification before reaching the resource safety boundary. The downloaded proof is therefore not counted as a verified proof benchmark yet.
 
 Blocked measurements:
 
 - guest cycle count;
 - host execution time;
-- proof-generation wall time;
-- proof-verification wall time;
+- completed proof-generation wall time;
+- completed proof-verification wall time;
 - peak proving memory;
 - guest ELF size;
-- proof size;
+- verified production proof size;
 - public-value size from real SP1 execution.
 - network proving units and actual PROVE cost.
-- successful remote proof request ID and explorer link.
+- completed verification receipt and manifest.
 
 These must be produced by the Linux SP1 workflow before any production release candidate is tagged.

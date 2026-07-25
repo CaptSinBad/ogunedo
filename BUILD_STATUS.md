@@ -152,21 +152,32 @@ Peak resource observations from the WSL network-path attempts:
 - latest post-check Windows snapshot: `1.006 GiB` free physical RAM, `13.472 GiB` free virtual memory, `18.039 GiB` free disk on `C:`.
 - latest WSL snapshot: `5.1 GiB` available memory, `2.0 GiB` swap free, and `19 GiB` available on `/mnt/c`.
 - latest post-balance-gate Windows snapshot: `3.647 GiB` free physical RAM, `16.601 GiB` free virtual memory, `18.157 GiB` free disk on `C:`.
+- pre-submit compressed request snapshot: `4.103 GiB` free Windows physical RAM, `19.144 GiB` free virtual memory, `21.159 GiB` free disk on `C:`, WSL `5.1 GiB` available memory, and WSL swap free.
+- compressed requester verification peak: child verifier RSS approximately `3,785,148 KiB`, WSL free memory approximately `78 MiB`, WSL available memory approximately `1.5 GiB`, and Windows free physical RAM approximately `0.765 GiB`; the process was interrupted to protect the laptop.
+- credential-free verification peak: verifier RSS approximately `3,919,668 KiB`, WSL free memory approximately `78 MiB`, WSL available memory approximately `1.5 GiB`; the process was interrupted to protect the laptop.
+- post-stop recovery snapshot: `2.267 GiB` free Windows physical RAM, `12.742 GiB` free virtual memory, `21.068 GiB` free disk on `C:`, WSL `5.2 GiB` available memory, and WSL swap free except for a negligible `72 KiB`.
 
 Still not completed:
 
-- no successful paid network request was observed;
-- no request ID, explorer link, actual PROVE cost, proof, receipt, or network verification report exists yet;
-- because the preflight requester balance was `0`, a funded requester wallet or supported prover-network environment is still required before a real remote proof can complete.
+- a paid compressed network request was submitted after a refreshed preflight showed sufficient deposited balance;
+- request ID: `0xe574b1b1770f22b015aea357466f539d0d5e899b2452640a430aa544a9398da6`;
+- explorer: `https://explorer.succinct.xyz/request/0xe574b1b1770f22b015aea357466f539d0d5e899b2452640a430aa544a9398da6`;
+- the pending receipt was written immediately to the ignored local file `artifacts/development-network-receipt.json`;
+- a compressed proof file was downloaded to the ignored local path `proofs/development-compressed.bin`;
+- downloaded proof size: `1,272,673` bytes;
+- downloaded proof SHA-256: `32971efa5337fcefe0094228a99459cbcf0f227ee1068359e184182645ba8474`;
+- immediate local verification did not complete before the laptop reached the configured resource safety boundary, so the requester process was interrupted with exit `130`;
+- a separate credential-free fresh-process verification attempt was run with `NETWORK_PRIVATE_KEY`, `NETWORK_RPC_URL`, and `SP1_PROVER` unset, and it was also interrupted with exit `130` at the local memory safety boundary;
+- because no verification completed, the receipt remains `status=submitted`, no completed manifest exists, and the downloaded proof must be treated as an unverified candidate artifact until verified on a larger Linux/SP1 runner.
 
 ## Not completed locally
 
 These production gates have **not** been claimed as completed:
 
 - SP1 execution of the relation;
-- compressed proof generation;
+- successful local verification of the downloaded compressed network proof;
 - Groth16 proof generation;
-- successful Succinct Prover Network compressed or Groth16 paid request;
+- successful Succinct Prover Network Groth16 paid request;
 - proof serialization/reload verification;
 - verification-key extraction and pinning;
 - proof tampering matrix;
