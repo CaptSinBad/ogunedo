@@ -1,0 +1,22 @@
+{
+  "protocol_version": 1,
+  "parameter_id_hex": "0x4f470001",
+  "matrix_seed_hex": "fde96f308a568f783be23b8211d6f9ab2822894bcd29a20eb6467158527cc037",
+  "context_hex": "fce54c4e6d752246d350d782c263c8854c484a1341937db92f9f3b0bee91bccc",
+  "target": [
+    4,
+    85,
+    69,
+    38,
+    62,
+    25,
+    70,
+    96
+  ],
+  "witness_l2_squared": 65,
+  "statement_digest_hex": "f3de5a839d4db50144386649bdc24cae6c1d6968a5960ebfb97cef0638595fcb",
+  "relation_digest_hex": "12ca32d006589f7fa7b3edaa4c1c19d3940661ae8528917738878dfe40d88feb",
+  "ntt_matches_naive": true,
+  "private_fixture": "fixtures/dev-instance.json",
+  "public_fixture": "fixtures/dev-statement.json"
+}

@@ -1,0 +1,54 @@
+name: sp1-integration
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "program/**"
+      - "script/**"
+      - "crates/ogunedo-core/**"
+      - "Cargo.toml"
+      - "rust-toolchain.toml"
+
+permissions:
+  contents: read
+
+jobs:
+  execute-and-prove:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install pinned Rust toolchain
+        run: |
+          rustup toolchain install 1.91.1 --profile minimal
+          rustup default 1.91.1
+      - name: Install native dependencies
+        run: sudo apt-get update && sudo apt-get install -y build-essential pkg-config libssl-dev protobuf-compiler
+      - name: Install pinned SP1 toolchain
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSfL https://sp1up.succinct.xyz | bash
+          echo "$HOME/.sp1/bin" >> "$GITHUB_PATH"
+          "$HOME/.sp1/bin/sp1up" --version v6.2.2
+      - name: Generate dependency lockfile
+        run: cargo generate-lockfile
+      - name: Compile full workspace
+        run: cargo check --workspace --all-targets
+      - name: Execute Ogunedo guest
+        run: cargo run --release -p ogunedo-cli -- execute --instance fixtures/dev-instance.json
+      - name: Generate compressed proof
+        run: cargo run --release -p ogunedo-cli -- prove --instance fixtures/dev-instance.json --mode compressed --output proofs/dev-compressed.bin --allow-unreviewed-parameters
+      - name: Redact private witness
+        run: cargo run --release -p ogunedo-cli -- redact --instance fixtures/dev-instance.json --output artifacts/dev-statement.json
+      - name: Verify compressed proof
+        run: cargo run --release -p ogunedo-cli -- verify --proof proofs/dev-compressed.bin --statement artifacts/dev-statement.json
+      - name: Record verification key
+        run: cargo run --release -p ogunedo-cli -- vkey | tee artifacts-vkey.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ogunedo-sp1-dev-artifacts
+          path: |
+            proofs/dev-compressed.bin
+            artifacts/dev-statement.json
+            artifacts-vkey.txt
+            Cargo.lock

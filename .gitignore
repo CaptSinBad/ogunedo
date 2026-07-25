@@ -1,0 +1,12 @@
+/target
+/proofs
+/artifacts
+.env
+.DS_Store
+*.bin
+*.proof
+*.log
+
+__pycache__/
+*.py[cod]
+.venv/
