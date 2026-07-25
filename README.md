@@ -133,6 +133,47 @@ On laptop-class hardware, prefer the guarded PowerShell runner:
 
 The guard sets `CARGO_BUILD_JOBS=2`, runs stages sequentially, records RAM/pagefile/disk snapshots, and refuses local production Groth16 on the 12 GB development laptop. See [Local proving policy](docs/LOCAL_PROVING_POLICY.md).
 
+## Succinct Prover Network path
+
+Paid network proving is exposed only through dedicated commands. Ordinary `prove`, `execute`, `verify`, and `vkey` no longer select the network from `SP1_PROVER`; this prevents an accidental spend when a requester `.env` is present.
+
+The only accepted first network fixture is:
+
+```text
+fixtures/public-benchmark-instance.json
+```
+
+It is a deterministic draft-profile benchmark with `safe_for_remote_proving: true`; its witness is intentionally public and may be visible to ordinary network provers. Do not use it as a confidential trapdoor or private application witness.
+
+Generate a sanitized preflight report:
+
+```bash
+cargo run --release -p ogunedo-cli -- network-estimate \
+  --instance fixtures/public-benchmark-instance.json \
+  --mode compressed \
+  --max-price-per-pgu <ATOMIC_PROVE_PER_PGU> \
+  --output artifacts/network-preflight.json \
+  --allow-unreviewed-parameters
+```
+
+The command loads only `.env` keys needed by the local requester process: `SP1_PROVER`, `NETWORK_PRIVATE_KEY`, and optional `NETWORK_RPC_URL`. It does not print the key. It writes the exact approval phrase required for a paid request.
+
+Submit only after the exact phrase is supplied:
+
+```bash
+cargo run --release -p ogunedo-cli -- network-prove \
+  --instance fixtures/public-benchmark-instance.json \
+  --mode compressed \
+  --preflight artifacts/network-preflight.json \
+  --approval "APPROVE OGUNEDO NETWORK PROOF UP TO <MAX_PROVE_AMOUNT> PROVE" \
+  --output proofs/development-compressed.bin \
+  --manifest proofs/development-compressed.manifest.json \
+  --receipt artifacts/development-network-receipt.json \
+  --allow-unreviewed-parameters
+```
+
+This repository currently contains the guarded network request lifecycle, not a completed paid proof. A production Groth16 request must follow a successful compressed development request and fresh credential-free verification.
+
 Generate a compressed proof with a development parameter set:
 
 ```bash
@@ -193,6 +234,7 @@ Commit the resulting `Cargo.lock` and record the SP1 verification-key commitment
 - [Repository bootstrap](docs/REPOSITORY_BOOTSTRAP.md)
 - [Implementation audit](docs/IMPLEMENTATION_AUDIT.md)
 - [Reproducible builds](docs/REPRODUCIBLE_BUILDS.md)
+- [Network proving](docs/NETWORK_PROVING.md)
 
 ## License
 

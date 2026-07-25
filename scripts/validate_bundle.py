@@ -99,6 +99,32 @@ def validate_dev_fixture(results: dict) -> None:
     }
 
 
+def validate_remote_benchmark_fixture(results: dict) -> None:
+    fixture = json.loads((ROOT / "fixtures" / "public-benchmark-instance.json").read_text())
+    assert fixture["safe_for_remote_proving"] is True
+    policy = fixture["remote_proving_policy"]
+    assert policy["witness_classification"] == "public deterministic benchmark witness"
+    assert policy["contains_trapdoor_secret"] is False
+    assert policy["contains_signing_secret"] is False
+    assert policy["contains_private_wallet_material"] is False
+    statement = fixture["statement"]
+    witness = fixture["witness"]["coeffs"]
+    params = registered_draft()
+    target = ref.compute_target(bytes(statement["matrix_seed"]), witness, params)
+    assert target == statement["target"]
+    assert sum(value * value for value in witness) <= 10_240
+    results["remote_benchmark_fixture"] = {
+        "fixture": "fixtures/public-benchmark-instance.json",
+        "parameter_id": f"0x{params.identifier:08x}",
+        "safe_for_remote_proving": True,
+        "witness_classification": policy["witness_classification"],
+        "target_length": len(target),
+        "statement_digest": ref.statement_digest(statement),
+        "witness_l2_squared": sum(value * value for value in witness),
+        "passed": True,
+    }
+
+
 def validate_draft_ntt(results: dict) -> None:
     params = registered_draft()
     left = [((index * index) + 17 * index + 3) % params.q for index in range(params.n)]
@@ -161,10 +187,12 @@ def validate_version_pins(results: dict) -> None:
     dependencies = cargo["workspace"]["dependencies"]
     assert dependencies["sp1-zkvm"]["version"] == "=6.2.2"
     assert dependencies["sp1-sdk"]["version"] == "=6.2.2"
+    assert sorted(dependencies["sp1-sdk"]["features"]) == ["native-gnark", "network"]
     assert dependencies["sp1-build"]["version"] == "=6.2.2"
     assert dependencies["sha2"]["version"] == "=0.10.8"
     results["version_pins"] = {
         "sp1": "6.2.2",
+        "sp1_sdk_features": dependencies["sp1-sdk"]["features"],
         "sha2": "0.10.8",
         "passed": True,
     }
@@ -182,6 +210,7 @@ def main() -> None:
     validate_structured_files(results)
     validate_shell_and_python(results)
     validate_dev_fixture(results)
+    validate_remote_benchmark_fixture(results)
     validate_draft_ntt(results)
     validate_randomized_differential_tests(results)
     validate_version_pins(results)

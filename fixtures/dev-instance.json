@@ -116,5 +116,6 @@
       1,
       -2
     ]
-  }
+  },
+  "safe_for_remote_proving": false
 }

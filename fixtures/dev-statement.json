@@ -81,5 +81,6 @@
       204
     ]
   },
-  "witness": null
+  "witness": null,
+  "safe_for_remote_proving": false
 }

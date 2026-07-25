@@ -12,3 +12,5 @@
 - Add parameter-digest binding to committed public values.
 - Add implementation-audit and reproducible-build status documents.
 - Generate and commit `Cargo.lock`.
+- Add fail-closed Succinct Prover Network preflight/submission commands guarded by `safe_for_remote_proving=true`, exact approval phrases, sanitized receipts, and credential-free verification.
+- Add a deterministic public benchmark fixture for remote proving; no paid proof artifact is claimed in this source tree.

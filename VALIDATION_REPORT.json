@@ -7,7 +7,7 @@
   ],
   "structured_files": {
     "toml": 8,
-    "json": 4,
+    "json": 5,
     "yaml": 3,
     "passed": true
   },
@@ -34,6 +34,16 @@
     "context_binding_verified": true,
     "passed": true
   },
+  "remote_benchmark_fixture": {
+    "fixture": "fixtures/public-benchmark-instance.json",
+    "parameter_id": "0x4f470101",
+    "safe_for_remote_proving": true,
+    "witness_classification": "public deterministic benchmark witness",
+    "target_length": 256,
+    "statement_digest": "7f72d8f19ef1429a3a9dbd527301815794af4d87460720501835788555535ce1",
+    "witness_l2_squared": 9215,
+    "passed": true
+  },
   "draft_profile": {
     "parameter_id": "0x4f470101",
     "ntt_matches_schoolbook": true,
@@ -54,6 +64,10 @@
   },
   "version_pins": {
     "sp1": "6.2.2",
+    "sp1_sdk_features": [
+      "native-gnark",
+      "network"
+    ],
     "sha2": "0.10.8",
     "passed": true
   },

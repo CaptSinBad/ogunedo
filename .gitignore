@@ -5,6 +5,8 @@
 !/artifacts/toolchain.json
 !/artifacts/local-resource-report.json
 .env
+.env.*
+!.env.example
 .DS_Store
 *.bin
 *.proof

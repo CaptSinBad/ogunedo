@@ -17,6 +17,9 @@
 - [x] CLI refusal for unreviewed parameters by default
 - [x] CI definitions, dependency policy, and release checklist
 - [x] Local laptop resource-safety policy and guarded SP1 runner
+- [x] Fail-closed Succinct Prover Network command path
+- [x] Public benchmark fixture marked `safe_for_remote_proving=true`
+- [x] Exact payment-approval phrase gate before network submission
 
 ## Required before real-value deployment
 
@@ -32,6 +35,21 @@
 - [ ] Define proof-size, input-size, and rate limits
 - [ ] Complete incident response and key/verification-key rotation procedures
 - [ ] Obtain an external release sign-off
+
+## Paid network proof gate
+
+The network lifecycle is implemented but must not be described as completed until the paid request has actually run:
+
+- [ ] `network-estimate` generated `artifacts/network-preflight.json` from the public benchmark fixture
+- [ ] Owner supplied the exact approval phrase from the preflight
+- [ ] Development compressed request submitted to the Succinct Prover Network
+- [ ] Downloaded compressed proof verified immediately
+- [ ] Downloaded compressed proof verified again in a fresh credential-free process
+- [ ] Production Groth16 preflight regenerated after compressed proof success
+- [ ] Owner supplied a fresh exact approval phrase if the spend changed
+- [ ] Production Groth16 request submitted
+- [ ] Production Groth16 proof downloaded, saved atomically, reloaded, and verified
+- [ ] Proof, receipt, manifest, and adversarial-test reports reviewed before any tag
 
 ## Release gate
 

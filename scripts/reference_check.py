@@ -19,6 +19,7 @@ STATEMENT_DOMAIN = b"OGUNEDO-STATEMENT-V1\0"
 RELATION_DOMAIN = b"OGUNEDO-KISIS-RELATION-V1\0"
 PROTOCOL_VERSION = 1
 DEV_PARAMETERS_ID = 0x4F470001
+DRAFT_PARAMETERS_ID = 0x4F470101
 
 
 @dataclass(frozen=True)
@@ -33,6 +34,7 @@ class Parameters:
 
 
 DEV = Parameters(DEV_PARAMETERS_ID, 97, 8, 1, 4, 2, 5)
+DRAFT = Parameters(DRAFT_PARAMETERS_ID, 12_289, 256, 1, 18, 2, 11)
 
 
 def derive_polynomial(seed: bytes, row: int, column: int, params: Parameters) -> list[int]:
@@ -176,12 +178,43 @@ def main() -> None:
             "context": list(context),
         },
         "witness": {"coeffs": witness},
+        "safe_for_remote_proving": False,
     }
     fixture = ROOT / "fixtures" / "dev-instance.json"
     fixture.write_text(json.dumps(instance, indent=2) + "\n")
     public_fixture = ROOT / "fixtures" / "dev-statement.json"
-    public_instance = {"statement": instance["statement"], "witness": None}
+    public_instance = {
+        "statement": instance["statement"],
+        "witness": None,
+        "safe_for_remote_proving": False,
+    }
     public_fixture.write_text(json.dumps(public_instance, indent=2) + "\n")
+
+    benchmark_seed = hashlib.sha256(b"Ogunedo public remote proving benchmark matrix v1").digest()
+    benchmark_context = hashlib.sha256(b"Ogunedo public remote proving benchmark context v1").digest()
+    benchmark_witness = [((index * 13 + 1) % 5) - 2 for index in range(DRAFT.columns * DRAFT.n)]
+    benchmark_target = compute_target(benchmark_seed, benchmark_witness, DRAFT)
+    benchmark_instance = {
+        "statement": {
+            "protocol_version": PROTOCOL_VERSION,
+            "parameter_id": DRAFT.identifier,
+            "matrix_seed": list(benchmark_seed),
+            "target": benchmark_target,
+            "context": list(benchmark_context),
+        },
+        "witness": {"coeffs": benchmark_witness},
+        "safe_for_remote_proving": True,
+        "remote_proving_policy": {
+            "fixture_id": "ogunedo-public-benchmark-draft-v1",
+            "witness_classification": "public deterministic benchmark witness",
+            "contains_trapdoor_secret": False,
+            "contains_signing_secret": False,
+            "contains_private_wallet_material": False,
+            "ordinary_prover_network_visibility": "witness may be visible to the prover; do not use for confidential witnesses",
+        },
+    }
+    benchmark_fixture = ROOT / "fixtures" / "public-benchmark-instance.json"
+    benchmark_fixture.write_text(json.dumps(benchmark_instance, indent=2) + "\n")
 
     report = {
         "protocol_version": PROTOCOL_VERSION,
@@ -195,6 +228,9 @@ def main() -> None:
         "ntt_matches_naive": True,
         "private_fixture": fixture.relative_to(ROOT).as_posix(),
         "public_fixture": public_fixture.relative_to(ROOT).as_posix(),
+        "remote_benchmark_fixture": benchmark_fixture.relative_to(ROOT).as_posix(),
+        "remote_benchmark_statement_digest_hex": statement_digest(benchmark_instance["statement"]),
+        "remote_benchmark_witness_l2_squared": sum(value * value for value in benchmark_witness),
     }
     (ROOT / "fixtures" / "reference-report.json").write_text(json.dumps(report, indent=2) + "\n")
     print(json.dumps(report, indent=2))

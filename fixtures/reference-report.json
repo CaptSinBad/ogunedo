@@ -18,5 +18,8 @@
   "relation_digest_hex": "12ca32d006589f7fa7b3edaa4c1c19d3940661ae8528917738878dfe40d88feb",
   "ntt_matches_naive": true,
   "private_fixture": "fixtures/dev-instance.json",
-  "public_fixture": "fixtures/dev-statement.json"
+  "public_fixture": "fixtures/dev-statement.json",
+  "remote_benchmark_fixture": "fixtures/public-benchmark-instance.json",
+  "remote_benchmark_statement_digest_hex": "7f72d8f19ef1429a3a9dbd527301815794af4d87460720501835788555535ce1",
+  "remote_benchmark_witness_l2_squared": 9215
 }
