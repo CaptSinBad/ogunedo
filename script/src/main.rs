@@ -857,6 +857,33 @@ async fn main() -> Result<()> {
                 get_explorer_url_for_mode(config.network_mode),
                 request_id_hex
             );
+            let submitted_at_unix = start_time
+                .duration_since(std::time::UNIX_EPOCH)
+                .ok()
+                .map(|d| d.as_secs());
+            let pending_receipt_json = json!({
+                "schema": "ogunedo-network-receipt-v1",
+                "status": "submitted",
+                "request_id": request_id_hex,
+                "explorer_url": explorer,
+                "requester_public_address": config.requester_address,
+                "network": "mainnet",
+                "rpc_endpoint_hostname": config.rpc_hostname,
+                "proof_mode": mode.as_str(),
+                "submitted_at_unix": submitted_at_unix,
+                "completed_at_unix": null,
+                "requested_max_price_per_pgu_atomic_prove": max_price_per_pgu.to_string(),
+                "cycle_limit": cycle_limit,
+                "gas_limit": gas_limit,
+                "proof_sha256": null,
+                "proof_size_bytes": null,
+                "immediate_verification_result": false,
+                "fresh_process_verification_result": false,
+                "private_key_recorded": false
+            });
+            write_json_atomic(&receipt, &pending_receipt_json)?;
+            println!("submitted network proof request: {}", request_id_hex);
+            println!("explorer: {}", explorer);
 
             let proof = client
                 .wait_proof(
@@ -913,6 +940,7 @@ async fn main() -> Result<()> {
             write_json_atomic(&manifest, &manifest_json)?;
             let receipt_json = json!({
                 "schema": "ogunedo-network-receipt-v1",
+                "status": "completed",
                 "request_id": json_string(&manifest_json, "request_id")?,
                 "explorer_url": json_string(&manifest_json, "explorer_url")?,
                 "requester_public_address": config.requester_address,

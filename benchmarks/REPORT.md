@@ -13,6 +13,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\local_sp1_safe.ps1 -Mode gues
 cargo check -p ogunedo-cli --locked: stopped after timeout; no success claimed
 WSL network-estimate: passed after installing protoc and the pinned SP1 toolchain
 WSL network-prove: stopped with exit 130 after local CPU-heavy setup produced no request ID
+WSL cargo check -p ogunedo-cli --locked after receipt hardening: passed in 9m14s
 ```
 
 Resource evidence from `artifacts/local-resource-report.json`:
@@ -75,6 +76,8 @@ highest observed single rustc RSS: ~1.72 GiB
 observed network-prove requester RSS: ~399 MiB
 observed network-prove CPU before interruption: ~770%
 WSL swap: unused except for a transient 44 KiB during compilation
+latest post-check Windows snapshot: 1.006 GiB free physical RAM, 13.472 GiB free virtual memory, 18.039 GiB free disk on C:
+latest post-check WSL snapshot: 5.1 GiB available memory, 2.0 GiB swap free, 19 GiB available on /mnt/c
 ```
 
 The stopped `network-prove` run is recorded as a local requester/setup resource boundary. It is not a protocol failure and not a failed remote proof, because no request ID or receipt was emitted.

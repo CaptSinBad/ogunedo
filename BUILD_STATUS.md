@@ -119,6 +119,7 @@ Implemented in source:
 - `network-prove` refuses payment unless the caller supplies the exact approval phrase from the preflight;
 - local `prove` refuses `SP1_PROVER=network`, preventing accidental paid fallback;
 - `verify` and `vkey` use local verifier setup and do not read network credentials;
+- `network-prove` now writes a pending sanitized receipt with the request ID and explorer URL immediately after submission, before waiting for proof fulfillment;
 - network proof saving is atomic and followed by a fresh credential-free verifier subprocess.
 
 Additional WSL network-path evidence collected on 2026-07-25:
@@ -135,16 +136,19 @@ Additional WSL network-path evidence collected on 2026-07-25:
 - The preflight reported requester balance `0` atomic PROVE. No private key was printed, recorded, staged, packaged, or committed.
 - A guarded `network-prove` attempt was launched with the exact approval phrase from the preflight. It ran from `2026-07-25T13:04:51+01:00` to `2026-07-25T13:30:40+01:00`, consumed high local CPU before emitting a request ID, and was interrupted to protect the laptop.
 - The stopped `network-prove` attempt exited `130` and produced no proof file, no manifest, no receipt, and no explorer/request ID. This is recorded as a local requester/setup resource boundary, not as a protocol failure and not as a failed remote proof.
+- After hardening the receipt lifecycle, WSL `cargo check -p ogunedo-cli --locked` completed successfully with `CARGO_BUILD_JOBS=2` in `9m14s`. This validates the network receipt changes at compile time on the Linux SP1 host path.
 
 Peak resource observations from the WSL network-path attempts:
 
 - lowest observed Windows free physical RAM during WSL estimate/prove work: approximately `0.564 GiB`;
 - WSL memory remained healthy, with approximately `3.5 GiB` or more available during the CPU-heavy proof attempt;
 - WSL swap was unused except for a negligible transient `44 KiB` during compilation;
-- lowest observed free disk on `C:` after SP1 installation/build artifacts: approximately `19.215 GiB`;
+- lowest observed free disk on `C:` after SP1 installation/build artifacts: approximately `18.039 GiB`;
 - highest observed single `rustc` RSS during the host/guest build path: approximately `1.72 GiB`;
 - observed `network-prove` requester process RSS: approximately `399 MiB`;
 - observed `network-prove` requester CPU before interruption: approximately `770%`, indicating local CPU-heavy setup before request evidence was written.
+- latest post-check Windows snapshot: `1.006 GiB` free physical RAM, `13.472 GiB` free virtual memory, `18.039 GiB` free disk on `C:`.
+- latest WSL snapshot: `5.1 GiB` available memory, `2.0 GiB` swap free, and `19 GiB` available on `/mnt/c`.
 
 Still not completed:
 

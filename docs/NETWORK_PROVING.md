@@ -97,7 +97,7 @@ cargo run --release -p ogunedo-cli -- network-prove \
   --allow-unreviewed-parameters
 ```
 
-The command submits the request asynchronously, waits for fulfillment, downloads the proof, verifies it immediately, saves it atomically, then launches a fresh verification subprocess with `NETWORK_PRIVATE_KEY`, `NETWORK_RPC_URL`, and `SP1_PROVER` removed from the environment.
+The command submits the request asynchronously and immediately writes a pending receipt containing the request ID and explorer link before waiting for fulfillment. After the proof is available, it downloads the proof, verifies it immediately, saves it atomically, overwrites the receipt with completed status, then launches a fresh verification subprocess with `NETWORK_PRIVATE_KEY`, `NETWORK_RPC_URL`, and `SP1_PROVER` removed from the environment.
 
 If this request fails, stop before Groth16 and diagnose the exact cause.
 
