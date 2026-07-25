@@ -137,6 +137,8 @@ Additional WSL network-path evidence collected on 2026-07-25:
 - A guarded `network-prove` attempt was launched with the exact approval phrase from the preflight. It ran from `2026-07-25T13:04:51+01:00` to `2026-07-25T13:30:40+01:00`, consumed high local CPU before emitting a request ID, and was interrupted to protect the laptop.
 - The stopped `network-prove` attempt exited `130` and produced no proof file, no manifest, no receipt, and no explorer/request ID. This is recorded as a local requester/setup resource boundary, not as a protocol failure and not as a failed remote proof.
 - After hardening the receipt lifecycle, WSL `cargo check -p ogunedo-cli --locked` completed successfully with `CARGO_BUILD_JOBS=2` in `9m14s`. This validates the network receipt changes at compile time on the Linux SP1 host path.
+- A fresh `network-estimate` completed successfully after the receipt hardening and wrote an ignored sanitized preflight report. It reported maximum possible spend `0.258933000005886633 PROVE` and requester balance `0` atomic PROVE.
+- `network-prove` was run with the exact refreshed preflight phrase only to validate the fail-closed balance guard. It refused before submission with `requester network balance (0 atomic PROVE) is below maximum possible spend (258933000005886633 atomic PROVE); paid request not submitted`. No proof, manifest, receipt, explorer URL, or request ID was created by this guarded refusal.
 
 Peak resource observations from the WSL network-path attempts:
 
@@ -149,6 +151,7 @@ Peak resource observations from the WSL network-path attempts:
 - observed `network-prove` requester CPU before interruption: approximately `770%`, indicating local CPU-heavy setup before request evidence was written.
 - latest post-check Windows snapshot: `1.006 GiB` free physical RAM, `13.472 GiB` free virtual memory, `18.039 GiB` free disk on `C:`.
 - latest WSL snapshot: `5.1 GiB` available memory, `2.0 GiB` swap free, and `19 GiB` available on `/mnt/c`.
+- latest post-balance-gate Windows snapshot: `3.647 GiB` free physical RAM, `16.601 GiB` free virtual memory, `18.157 GiB` free disk on `C:`.
 
 Still not completed:
 

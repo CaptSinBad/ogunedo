@@ -14,6 +14,8 @@ cargo check -p ogunedo-cli --locked: stopped after timeout; no success claimed
 WSL network-estimate: passed after installing protoc and the pinned SP1 toolchain
 WSL network-prove: stopped with exit 130 after local CPU-heavy setup produced no request ID
 WSL cargo check -p ogunedo-cli --locked after receipt hardening: passed in 9m14s
+WSL network-estimate after receipt hardening: passed, refreshed maximum possible spend 0.258933000005886633 PROVE
+WSL network-prove balance guard: refused before submission because requester balance was 0 atomic PROVE
 ```
 
 Resource evidence from `artifacts/local-resource-report.json`:
@@ -78,6 +80,7 @@ observed network-prove CPU before interruption: ~770%
 WSL swap: unused except for a transient 44 KiB during compilation
 latest post-check Windows snapshot: 1.006 GiB free physical RAM, 13.472 GiB free virtual memory, 18.039 GiB free disk on C:
 latest post-check WSL snapshot: 5.1 GiB available memory, 2.0 GiB swap free, 19 GiB available on /mnt/c
+latest post-balance-gate Windows snapshot: 3.647 GiB free physical RAM, 16.601 GiB free virtual memory, 18.157 GiB free disk on C:
 ```
 
 The stopped `network-prove` run is recorded as a local requester/setup resource boundary. It is not a protocol failure and not a failed remote proof, because no request ID or receipt was emitted.

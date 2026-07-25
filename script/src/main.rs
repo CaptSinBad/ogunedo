@@ -812,6 +812,18 @@ async fn main() -> Result<()> {
                 json_string(&preflight_json, "requested_max_price_per_pgu_atomic_prove")?
                     .parse::<u64>()
                     .context("invalid max_price_per_pgu in preflight")?;
+            let requester_balance = json_string(&preflight_json, "requester_balance_atomic_prove")?
+                .parse::<u128>()
+                .context("invalid requester_balance_atomic_prove in preflight")?;
+            let max_possible_spend =
+                json_string(&preflight_json, "max_possible_prove_spend_atomic")?
+                    .parse::<u128>()
+                    .context("invalid max_possible_prove_spend_atomic in preflight")?;
+            if requester_balance < max_possible_spend {
+                bail!(
+                    "requester network balance ({requester_balance} atomic PROVE) is below maximum possible spend ({max_possible_spend} atomic PROVE); paid request not submitted"
+                );
+            }
             let timeout_secs = preflight_json
                 .get("request_timeout_secs")
                 .and_then(serde_json::Value::as_u64)
