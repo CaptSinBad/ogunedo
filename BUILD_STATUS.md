@@ -22,6 +22,7 @@ cargo doc -p ogunedo-core --all-features --no-deps --locked
 cargo check -p ogunedo-program --locked
 python scripts\reference_check.py
 python scripts\validate_bundle.py
+powershell -ExecutionPolicy Bypass -File .\scripts\local_sp1_safe.ps1 -Mode guest-build
 ```
 
 Observed results:
@@ -33,10 +34,27 @@ Observed results:
 - The SP1 guest crate `ogunedo-program` type-checks against the pinned dependencies.
 - The independent Python reference model regenerated the development fixtures.
 - The offline bundle validator passed source structured-file parsing, script syntax checks, deterministic fixture regeneration, dev and draft NTT-vs-schoolbook checks, matrix-expander determinism checks, and SP1 version-pin checks.
+- The local SP1-safe runner set `CARGO_BUILD_JOBS=2`, executed guest-build only, and wrote resource evidence to `artifacts/local-resource-report.json`.
 
 Machine-readable offline validation results are in [`VALIDATION_REPORT.json`](VALIDATION_REPORT.json).
 
 `bash scripts/release_check.sh` was also attempted. The wrapper did not complete on this Windows/WSL-mixed host because the Bash environment cannot see the Windows Rust installation. The underlying commands in the wrapper were run directly and are listed above.
+
+## Local resource snapshot
+
+The safe runner observed this laptop envelope before the guest-build check:
+
+- total physical RAM: `11.756 GiB`;
+- free physical RAM: `0.716 GiB`;
+- total virtual memory: `35.547 GiB`;
+- free virtual memory: `15.88 GiB`;
+- pagefile allocated: `23.79 GiB`;
+- pagefile current usage: `2.169 GiB`;
+- pagefile peak usage reported by Windows: `6.979 GiB`;
+- free disk on `C:`: `24.074 GiB`;
+- `CARGO_BUILD_JOBS`: `2`.
+
+Because free physical RAM was below the configured `3 GiB` heavy-command threshold, local SP1 proof generation should remain stopped until resources are freed or moved to GitHub Actions / a supported SP1 prover network. An out-of-memory termination would be a local resource failure, not a protocol failure.
 
 ## Blocked on this Windows host
 

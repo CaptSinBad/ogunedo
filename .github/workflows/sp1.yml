@@ -33,16 +33,26 @@ jobs:
       - name: Generate dependency lockfile
         run: cargo generate-lockfile
       - name: Compile full workspace
+        env:
+          CARGO_BUILD_JOBS: "2"
         run: cargo check --workspace --all-targets
       - name: Execute Ogunedo guest
+        env:
+          CARGO_BUILD_JOBS: "2"
         run: cargo run --release -p ogunedo-cli -- execute --instance fixtures/dev-instance.json
       - name: Generate compressed proof
+        env:
+          CARGO_BUILD_JOBS: "2"
         run: cargo run --release -p ogunedo-cli -- prove --instance fixtures/dev-instance.json --mode compressed --output proofs/dev-compressed.bin --allow-unreviewed-parameters
       - name: Redact private witness
         run: cargo run --release -p ogunedo-cli -- redact --instance fixtures/dev-instance.json --output artifacts/dev-statement.json
       - name: Verify compressed proof
+        env:
+          CARGO_BUILD_JOBS: "2"
         run: cargo run --release -p ogunedo-cli -- verify --proof proofs/dev-compressed.bin --statement artifacts/dev-statement.json
       - name: Record verification key
+        env:
+          CARGO_BUILD_JOBS: "2"
         run: cargo run --release -p ogunedo-cli -- vkey | tee artifacts-vkey.txt
       - uses: actions/upload-artifact@v4
         with:

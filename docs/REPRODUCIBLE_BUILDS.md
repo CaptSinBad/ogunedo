@@ -34,6 +34,8 @@ A release candidate must record:
 
 No file may be manually edited to invent an ELF hash, verification key, proof hash, or benchmark.
 
+Laptop-class machines must use `scripts/local_sp1_safe.ps1` for local SP1 attempts. The runner sets `CARGO_BUILD_JOBS=2`, records memory/pagefile/disk snapshots before heavy commands, and refuses local production Groth16 when the machine is below the configured proving envelope.
+
 ## Release archive reproducibility
 
 Source archives should be generated from Git history, not from an ad hoc filesystem copy:

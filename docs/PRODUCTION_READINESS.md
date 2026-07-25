@@ -16,6 +16,7 @@
 - [x] Verification-key commitment command
 - [x] CLI refusal for unreviewed parameters by default
 - [x] CI definitions, dependency policy, and release checklist
+- [x] Local laptop resource-safety policy and guarded SP1 runner
 
 ## Required before real-value deployment
 

@@ -3,6 +3,7 @@
 /artifacts/*
 !/artifacts/.gitkeep
 !/artifacts/toolchain.json
+!/artifacts/local-resource-report.json
 .env
 .DS_Store
 *.bin

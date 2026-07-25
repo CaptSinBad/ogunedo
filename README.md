@@ -122,6 +122,17 @@ cargo run --release -p ogunedo-cli -- execute \
   --instance fixtures/generated-instance.json
 ```
 
+On laptop-class hardware, prefer the guarded PowerShell runner:
+
+```powershell
+.\scripts\local_sp1_safe.ps1 -Mode inventory
+.\scripts\local_sp1_safe.ps1 -Mode guest-build
+.\scripts\local_sp1_safe.ps1 -Mode execute
+.\scripts\local_sp1_safe.ps1 -Mode dev-proof
+```
+
+The guard sets `CARGO_BUILD_JOBS=2`, runs stages sequentially, records RAM/pagefile/disk snapshots, and refuses local production Groth16 on the 12 GB development laptop. See [Local proving policy](docs/LOCAL_PROVING_POLICY.md).
+
 Generate a compressed proof with a development parameter set:
 
 ```bash
