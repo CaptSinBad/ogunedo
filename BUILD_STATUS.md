@@ -193,12 +193,30 @@ Machine-readable summaries are in ignored local evidence files:
 - `artifacts/vps-verification-summary.json`;
 - `artifacts/vps-adversarial-verification.json`.
 
+## VPS development Groth16 proof
+
+After the compressed lifecycle succeeded, a local, credential-free development Groth16 proof was generated on the VPS for `fixtures/dev-instance.json`. This was not a paid network request and did not use wallet credentials.
+
+- proof path: `proofs/dev-groth16-vps.bin`;
+- proof size: `1,798` bytes;
+- proof SHA-256: `5d710d1487be92dbbef93266ca7ed1e4a5c87bc0ecae6b551a14782d9b9710ce`;
+- statement path: `fixtures/dev-statement.json`;
+- statement SHA-256: `0ece28fc1369de924d3bbe0344a063ac4b5468db539b4624b3fb0dc8bc7cf00d`;
+- statement digest: `0xf3de5a839d4db50144386649bdc24cae6c1d6968a5960ebfb97cef0638595fcb`;
+- vkey: `0x00802c99c8f0a957ff88e97091fea717ca15a6f51390b4a721cbb23cee0d81a1`;
+- generation log: `artifacts/vps-dev-groth16.log`;
+- reload verification log: `artifacts/vps-dev-groth16-verify.log`.
+
+The prover reported `15,972,262` Groth16 constraints, generated and internally verified the proof, and exited `0`. `/usr/bin/time -v` recorded elapsed time `1:24:03` and maximum resident set size `22,659,660 KiB`. A live resource poll during proving observed system swap usage around `2.9 GiB`; after exit the VPS recovered to about `22 GiB` available memory and `5.5 MiB` swap in use. This is a resource-intensive development proof, but it completed without an out-of-memory termination.
+
+A separate fresh verifier process then reloaded the Groth16 proof and verified it with explicit proof SHA-256, proof size, statement SHA-256, proof mode `groth16`, and vkey bindings. That verification exited `0`, took `2:14.00`, and recorded peak RSS `7,319,944 KiB`.
+
 ## Not completed locally
 
 These production gates have **not** been claimed as completed:
 
 - SP1 execution of the relation;
-- Groth16 proof generation;
+- production-profile Groth16 proof generation;
 - successful Succinct Prover Network Groth16 paid request;
 - production benchmarks;
 - estimator run for the draft module-ISIS profile;

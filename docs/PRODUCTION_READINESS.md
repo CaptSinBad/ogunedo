@@ -24,6 +24,7 @@
 ## Required before real-value deployment
 
 - [x] Reproduce the development compressed SP1 verification path on a clean pinned Linux/VPS environment
+- [x] Generate and reload-verify a local development Groth16 proof on the VPS
 - [ ] Reproduce a production Groth16 proof on a clean pinned environment
 - [x] Commit `Cargo.lock` generated from pinned workspace dependencies
 - [ ] Reproduce `Cargo.lock` generation on the Linux SP1 CI environment
@@ -53,6 +54,7 @@ The compressed network lifecycle has completed on the VPS evidence path. Groth16
 - [ ] Owner supplied a fresh exact approval phrase if the spend changed
 - [ ] Production Groth16 request submitted
 - [ ] Production Groth16 proof downloaded, saved atomically, reloaded, and verified
+- [x] Development Groth16 proof generated locally on the VPS and reload-verified with hash, size, mode, statement, and vkey bindings
 - [ ] Proof, receipt, manifest, and adversarial-test reports reviewed before any tag
 
 ## Release gate
