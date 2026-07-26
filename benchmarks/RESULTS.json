@@ -1,0 +1,28 @@
+{
+  "status": "sp1_benchmarks_not_completed_on_this_host",
+  "captured_at": "2026-07-25",
+  "completed": {
+    "core_tests": {
+      "command": "cargo test -p ogunedo-core --all-features --locked",
+      "result": "passed",
+      "tests": 8
+    },
+    "core_clippy": {
+      "command": "cargo clippy -p ogunedo-core --all-targets --all-features --locked -- -D warnings",
+      "result": "passed"
+    },
+    "guest_check": {
+      "command": "cargo check -p ogunedo-program --locked",
+      "result": "passed"
+    },
+    "offline_validator": {
+      "command": "python scripts/validate_bundle.py",
+      "result": "passed"
+    }
+  },
+  "blocked": {
+    "sp1_execution": "cargo prove is not installed locally",
+    "sp1_proof_generation": "cargo prove is not installed locally",
+    "host_cli_check": "sp1-jit transitive dependency requires POSIX APIs unavailable on x86_64-pc-windows-gnullvm"
+  }
+}

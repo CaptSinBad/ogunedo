@@ -1,0 +1,60 @@
+﻿{
+    "status":  "completed",
+    "message":  "Requested local SP1-safe mode completed.",
+    "generated_utc":  "2026-07-25T01:27:19.7838886Z",
+    "hardware_policy":  {
+                            "cargo_build_jobs":  2,
+                            "sequential_commands":  true,
+                            "local_production_groth16_minimum_total_ram_gib":  32,
+                            "minimum_free_ram_gib":  3,
+                            "minimum_free_disk_gib":  20,
+                            "never_disable_windows_pagefile_or_wsl_swap":  true
+                        },
+    "snapshots_or_steps":  [
+                               {
+                                   "name":  "guest-build",
+                                   "command":  [
+                                                   "cargo",
+                                                   "check",
+                                                   "-p",
+                                                   "ogunedo-program",
+                                                   "--locked"
+                                               ],
+                                   "started_utc":  "2026-07-25T01:27:18.5417208Z",
+                                   "ended_utc":  "2026-07-25T01:27:19.4790809Z",
+                                   "duration_seconds":  0.937,
+                                   "exit_code":  0,
+                                   "peak_note":  "PowerShell direct invocation is used for reliable exit-code propagation. Use system RAM/pagefile snapshots for machine-safety decisions; per-process child aggregate peak is not available from this runner.",
+                                   "before":  {
+                                                  "label":  "before:guest-build",
+                                                  "timestamp_utc":  "2026-07-25T01:27:18.4436561Z",
+                                                  "total_physical_ram_gib":  11.756,
+                                                  "free_physical_ram_gib":  0.716,
+                                                  "total_virtual_memory_gib":  35.547,
+                                                  "free_virtual_memory_gib":  15.88,
+                                                  "pagefile_allocated_gib":  23.79,
+                                                  "pagefile_current_usage_gib":  2.169,
+                                                  "pagefile_peak_usage_gib":  6.979,
+                                                  "drive":  "C:",
+                                                  "drive_free_gib":  24.074,
+                                                  "drive_used_gib":  451.412,
+                                                  "cargo_build_jobs":  "2"
+                                              },
+                                   "after":  {
+                                                 "label":  "after:guest-build",
+                                                 "timestamp_utc":  "2026-07-25T01:27:19.7191556Z",
+                                                 "total_physical_ram_gib":  11.756,
+                                                 "free_physical_ram_gib":  0.7,
+                                                 "total_virtual_memory_gib":  35.547,
+                                                 "free_virtual_memory_gib":  15.921,
+                                                 "pagefile_allocated_gib":  23.79,
+                                                 "pagefile_current_usage_gib":  2.169,
+                                                 "pagefile_peak_usage_gib":  6.979,
+                                                 "drive":  "C:",
+                                                 "drive_free_gib":  24.074,
+                                                 "drive_used_gib":  451.412,
+                                                 "cargo_build_jobs":  "2"
+                                             }
+                               }
+                           ]
+}

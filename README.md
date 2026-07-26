@@ -1,2 +1,241 @@
-# ogunedo
-Ogunedo Proof System v1.0.0
+# Ogunedo
+
+**The Ogunedo Proof System** is a proof-of-knowledge framework for short lattice preimages and the production execution layer of the broader Ogunedo/Keller research program.
+
+This repository contains **Ogunedo K-ISIS v1**: an SP1-backed proof that a prover knows a bounded module-lattice witness
+
+\[
+  w \in R^k, \qquad A w = u \pmod q,
+  \qquad R = \mathbb Z_q[X]/(X^N+1),
+\]
+
+without publishing `w`.
+
+The name **Ogunedo** attaches the construction to its inventor, **Ifeanyi Joseph Ogunedo**.
+
+The full determinant-one Keller compiler developed in the accompanying research is a separate layer. This repository proves the underlying K-ISIS relation with a mature zkVM backend; it does not claim that the complete Keller compiler has already been audited or productionized.
+
+## What is production and what is not
+
+The proving backend is pinned to **SP1 6.2.2** and uses its normal program, setup, prove, and verify APIs. The repository does **not** implement a custom FRI, transcript, Merkle tree, Fiat-Shamir transform, or polynomial commitment.
+
+The relation implementation includes:
+
+- canonical public-statement hashing;
+- deterministic, rejection-sampled public matrix expansion;
+- negacyclic NTT multiplication in `Z_q[X]/(X^N+1)`;
+- coefficient and squared-Euclidean-norm bounds;
+- exact statement-to-proof binding;
+- registered parameter digest binding;
+- versioned relation-domain separation;
+- negative tests and an independent Python reference model;
+- a parameter registry that refuses unreviewed parameters unless the caller opts in.
+
+**Important:** no parameter set in `v0.1.0` is marked `ProductionApproved`. The proof software is production-oriented, but deploying Ogunedo as a cryptographic primitive still requires independent parameter analysis, implementation audit, and operational review. The CLI enforces this distinction.
+
+
+## Build status
+
+This source tree has passed local `ogunedo-core` Rust tests, clippy, no-default-features compilation, documentation generation, SP1 guest crate checking, the independent Python arithmetic model, deterministic test-vector regeneration, structured-file parsing, and script syntax checks recorded in [`VALIDATION_REPORT.json`](VALIDATION_REPORT.json). The SP1 host CLI and full workspace do not compile on this Windows host because an upstream SP1 JIT dependency requires POSIX APIs; no local SP1 proof is claimed. [`BUILD_STATUS.md`](BUILD_STATUS.md) records the exact commands and blocked gates.
+
+## Repository layout
+
+```text
+ogunedo/
+|-- crates/ogunedo-core/   # Canonical relation and arithmetic
+|-- program/               # SP1 guest program
+|-- script/                # Prover/verifier CLI
+|-- fixtures/              # Reproducible development instance
+|-- docs/                  # Specification and security documents
+`-- scripts/               # Reference checks and repository bootstrap
+```
+
+## Security statement
+
+For a public statement `S = (params, seed_A, u, context)`, a valid proof attests that the SP1 guest accepted a private witness `w` after checking:
+
+1. the protocol and parameter identifiers are registered;
+2. `u` is canonically encoded;
+3. `w` has the exact expected dimension;
+4. every coefficient of `w` is within the registered bound;
+5. `||w||_2^2` is within the registered bound;
+6. the deterministic matrix `A = Expand(seed_A)` satisfies `A w = u` in the negacyclic ring;
+7. the committed public values contain the canonical digest of `S`, the Ogunedo relation-domain digest, and the registered parameter digest.
+
+The verifier must supply the expected public statement and compare its digest before accepting the proof. The included CLI now performs cheap file and public-value binding checks before expensive SP1 setup, then still requires SP1 verification before reporting acceptance. Release verification should pass `--expected-proof-sha256`, `--expected-proof-size-bytes`, `--expected-statement-sha256`, `--expected-mode`, and `--expected-vkey`.
+
+## Prerequisites
+
+- Rust 1.91.1 or newer compatible toolchain;
+- SP1 toolchain corresponding to SP1 6.2.2;
+- Go and native build dependencies when generating local Groth16 proofs.
+
+Follow the SP1 installation instructions, then confirm:
+
+```bash
+rustc --version
+cargo prove --version
+```
+
+## Quick start
+
+Run the independent reference implementation:
+
+```bash
+python3 scripts/reference_check.py
+```
+
+Run native relation tests:
+
+```bash
+cargo test -p ogunedo-core
+```
+
+Generate a development instance:
+
+```bash
+cargo run -p ogunedo-cli -- generate \
+  --parameters dev \
+  --seed ogunedo-demo \
+  --output fixtures/generated-instance.json
+```
+
+Check it natively:
+
+```bash
+cargo run -p ogunedo-cli -- check \
+  --instance fixtures/generated-instance.json
+```
+
+Export a shareable statement with the private witness removed:
+
+```bash
+cargo run -p ogunedo-cli -- redact \
+  --instance fixtures/generated-instance.json \
+  --output fixtures/generated-statement.json
+```
+
+Execute inside SP1 without proving:
+
+```bash
+cargo run --release -p ogunedo-cli -- execute \
+  --instance fixtures/generated-instance.json
+```
+
+On laptop-class hardware, prefer the guarded PowerShell runner:
+
+```powershell
+.\scripts\local_sp1_safe.ps1 -Mode inventory
+.\scripts\local_sp1_safe.ps1 -Mode guest-build
+.\scripts\local_sp1_safe.ps1 -Mode execute
+.\scripts\local_sp1_safe.ps1 -Mode dev-proof
+```
+
+The guard sets `CARGO_BUILD_JOBS=2`, runs stages sequentially, records RAM/pagefile/disk snapshots, and refuses local production Groth16 on the 12 GB development laptop. See [Local proving policy](docs/LOCAL_PROVING_POLICY.md).
+
+## Succinct Prover Network path
+
+Paid network proving is exposed only through dedicated commands. Ordinary `prove`, `execute`, `verify`, and `vkey` no longer select the network from `SP1_PROVER`; this prevents an accidental spend when a requester `.env` is present.
+
+The only accepted first network fixture is:
+
+```text
+fixtures/public-benchmark-instance.json
+```
+
+It is a deterministic draft-profile benchmark with `safe_for_remote_proving: true`; its witness is intentionally public and may be visible to ordinary network provers. Do not use it as a confidential trapdoor or private application witness.
+
+Generate a sanitized preflight report:
+
+```bash
+cargo run --release -p ogunedo-cli -- network-estimate \
+  --instance fixtures/public-benchmark-instance.json \
+  --mode compressed \
+  --max-price-per-pgu <ATOMIC_PROVE_PER_PGU> \
+  --output artifacts/network-preflight.json \
+  --allow-unreviewed-parameters
+```
+
+The command loads only `.env` keys needed by the local requester process: `SP1_PROVER`, `NETWORK_PRIVATE_KEY`, and optional `NETWORK_RPC_URL`. It does not print the key. It writes the exact approval phrase required for a paid request.
+
+Submit only after the exact phrase is supplied:
+
+```bash
+cargo run --release -p ogunedo-cli -- network-prove \
+  --instance fixtures/public-benchmark-instance.json \
+  --mode compressed \
+  --preflight artifacts/network-preflight.json \
+  --approval "APPROVE OGUNEDO NETWORK PROOF UP TO <MAX_PROVE_AMOUNT> PROVE" \
+  --output proofs/development-compressed.bin \
+  --manifest proofs/development-compressed.manifest.json \
+  --receipt artifacts/development-network-receipt.json \
+  --allow-unreviewed-parameters
+```
+
+This repository currently contains the guarded network request lifecycle, not a completed paid proof. A production Groth16 request must follow a successful compressed development request and fresh credential-free verification.
+
+Generate a compressed proof with a development parameter set:
+
+```bash
+cargo run --release -p ogunedo-cli -- prove \
+  --instance fixtures/generated-instance.json \
+  --mode compressed \
+  --output proofs/ogunedo-compressed.bin \
+  --allow-unreviewed-parameters
+```
+
+Verify and bind the saved proof to the statement:
+
+```bash
+cargo run --release -p ogunedo-cli -- verify \
+  --proof proofs/ogunedo-compressed.bin \
+  --statement fixtures/generated-statement.json
+```
+
+For a Groth16 proof, use `--mode groth16`.
+
+## Public values
+
+The guest commits only:
+
+```text
+protocol_version
+parameter_id
+SHA256(canonical_public_statement)
+SHA256("OGUNEDO-KISIS-RELATION-V1\0")
+SHA256(canonical_registered_parameter_set)
+```
+
+The private witness is never committed by Ogunedo. The external verifier binds the proof to the expected statement by recomputing the statement digest.
+
+## Reproducibility
+
+Dependencies are exactly pinned where security-sensitive. Before a release:
+
+```bash
+cargo update
+cargo test -p ogunedo-core
+python3 scripts/reference_check.py
+cargo run --release -p ogunedo-cli -- execute --instance fixtures/dev-instance.json
+```
+
+Commit the resulting `Cargo.lock` and record the SP1 verification-key commitment in the release notes.
+
+## Documentation
+
+- [Architecture](docs/ARCHITECTURE.md)
+- [Protocol specification](docs/SPECIFICATION.md)
+- [Security model](docs/SECURITY_MODEL.md)
+- [One-wayness reduction](docs/ONE_WAYNESS.md)
+- [Parameter policy](docs/PARAMETER_POLICY.md)
+- [Production-readiness checklist](docs/PRODUCTION_READINESS.md)
+- [Threat model](docs/THREAT_MODEL.md)
+- [Name and attribution](docs/NAME_AND_ATTRIBUTION.md)
+- [Repository bootstrap](docs/REPOSITORY_BOOTSTRAP.md)
+- [Implementation audit](docs/IMPLEMENTATION_AUDIT.md)
+- [Reproducible builds](docs/REPRODUCIBLE_BUILDS.md)
+- [Network proving](docs/NETWORK_PROVING.md)
+
+## License
+
+Dual-licensed under Apache-2.0 or MIT, at your option.

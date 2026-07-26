@@ -1,0 +1,17 @@
+/target
+/proofs
+/artifacts/*
+!/artifacts/.gitkeep
+!/artifacts/toolchain.json
+!/artifacts/local-resource-report.json
+.env
+.env.*
+!.env.example
+.DS_Store
+*.bin
+*.proof
+*.log
+
+__pycache__/
+*.py[cod]
+.venv/
