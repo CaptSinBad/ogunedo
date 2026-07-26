@@ -113,6 +113,23 @@ Only then run `network-prove --mode groth16`.
 
 `ogunedo verify` uses a local verifier path and does not read `.env`. Verification should succeed even when network credentials are absent.
 
+For release evidence, bind the exact artifact bytes and verifier identity:
+
+```bash
+unset NETWORK_PRIVATE_KEY NETWORK_RPC_URL SP1_PROVER
+
+ogunedo verify \
+  --proof proofs/development-compressed.bin \
+  --statement artifacts/development-network-statement.json \
+  --expected-proof-sha256 <downloaded-proof-sha256> \
+  --expected-proof-size-bytes <downloaded-proof-size> \
+  --expected-statement-sha256 <statement-file-sha256> \
+  --expected-mode compressed \
+  --expected-vkey <vkey-from-preflight>
+```
+
+The hash and size checks are part of the release verification boundary. A file that decodes to a valid SP1 proof object but has extra bytes, missing bytes, or a different hash is not the approved network artifact and must be rejected by release tooling.
+
 ## Current limitation
 
 This Windows laptop cannot complete the SP1 host CLI compile within the local safety budget, and the full host-side SP1 dependency graph has an upstream POSIX/JIT boundary on this target. Run the network commands on a Linux SP1 environment or CI runner that can compile the host CLI.

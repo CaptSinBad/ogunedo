@@ -13,7 +13,7 @@
   },
   "script_syntax": {
     "shell_files": 3,
-    "python_files": 2,
+    "python_files": 3,
     "passed": true
   },
   "development_fixture": {

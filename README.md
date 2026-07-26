@@ -62,7 +62,7 @@ For a public statement `S = (params, seed_A, u, context)`, a valid proof attests
 6. the deterministic matrix `A = Expand(seed_A)` satisfies `A w = u` in the negacyclic ring;
 7. the committed public values contain the canonical digest of `S`, the Ogunedo relation-domain digest, and the registered parameter digest.
 
-The verifier must supply the expected public statement and compare its digest before accepting the proof. The included CLI verifies the SP1 proof first, then performs the explicit digest and domain checks before reporting acceptance.
+The verifier must supply the expected public statement and compare its digest before accepting the proof. The included CLI now performs cheap file and public-value binding checks before expensive SP1 setup, then still requires SP1 verification before reporting acceptance. Release verification should pass `--expected-proof-sha256`, `--expected-proof-size-bytes`, `--expected-statement-sha256`, `--expected-mode`, and `--expected-vkey`.
 
 ## Prerequisites
 

@@ -24,7 +24,7 @@ jobs:
           rustup toolchain install 1.91.1 --profile minimal
           rustup default 1.91.1
       - name: Install native dependencies
-        run: sudo apt-get update && sudo apt-get install -y build-essential pkg-config libssl-dev protobuf-compiler
+        run: sudo apt-get update && sudo apt-get install -y build-essential clang cmake pkg-config libssl-dev protobuf-compiler golang-go jq
       - name: Install pinned SP1 toolchain
         run: |
           curl --proto '=https' --tlsv1.2 -sSfL https://sp1up.succinct.xyz | bash
@@ -35,25 +35,51 @@ jobs:
       - name: Compile full workspace
         env:
           CARGO_BUILD_JOBS: "2"
+          CC: clang
+          CXX: clang++
         run: cargo check --workspace --all-targets
       - name: Execute Ogunedo guest
         env:
           CARGO_BUILD_JOBS: "2"
+          CC: clang
+          CXX: clang++
         run: cargo run --release -p ogunedo-cli -- execute --instance fixtures/dev-instance.json
       - name: Generate compressed proof
         env:
           CARGO_BUILD_JOBS: "2"
+          CC: clang
+          CXX: clang++
         run: cargo run --release -p ogunedo-cli -- prove --instance fixtures/dev-instance.json --mode compressed --output proofs/dev-compressed.bin --allow-unreviewed-parameters
       - name: Redact private witness
-        run: cargo run --release -p ogunedo-cli -- redact --instance fixtures/dev-instance.json --output artifacts/dev-statement.json
-      - name: Verify compressed proof
         env:
           CARGO_BUILD_JOBS: "2"
-        run: cargo run --release -p ogunedo-cli -- verify --proof proofs/dev-compressed.bin --statement artifacts/dev-statement.json
+          CC: clang
+          CXX: clang++
+        run: cargo run --release -p ogunedo-cli -- redact --instance fixtures/dev-instance.json --output artifacts/dev-statement.json
       - name: Record verification key
         env:
           CARGO_BUILD_JOBS: "2"
-        run: cargo run --release -p ogunedo-cli -- vkey | tee artifacts-vkey.txt
+          CC: clang
+          CXX: clang++
+        run: cargo run --release -p ogunedo-cli -- vkey | tr -d '"' | tee artifacts-vkey.txt
+      - name: Verify compressed proof with release bindings
+        env:
+          CARGO_BUILD_JOBS: "2"
+          CC: clang
+          CXX: clang++
+        run: |
+          PROOF_SHA="$(sha256sum proofs/dev-compressed.bin | awk '{print $1}')"
+          PROOF_SIZE="$(stat -c %s proofs/dev-compressed.bin)"
+          STATEMENT_SHA="$(sha256sum artifacts/dev-statement.json | awk '{print $1}')"
+          VKEY="$(cat artifacts-vkey.txt)"
+          cargo run --release -p ogunedo-cli -- verify \
+            --proof proofs/dev-compressed.bin \
+            --statement artifacts/dev-statement.json \
+            --expected-proof-sha256 "$PROOF_SHA" \
+            --expected-proof-size-bytes "$PROOF_SIZE" \
+            --expected-statement-sha256 "$STATEMENT_SHA" \
+            --expected-mode compressed \
+            --expected-vkey "$VKEY"
       - uses: actions/upload-artifact@v4
         with:
           name: ogunedo-sp1-dev-artifacts

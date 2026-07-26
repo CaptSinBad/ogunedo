@@ -2,6 +2,7 @@
 
 use std::{
     env, fs,
+    io::Read,
     path::{Path, PathBuf},
     process::Command as ProcessCommand,
     time::Duration,
@@ -138,6 +139,16 @@ enum Command {
         proof: PathBuf,
         #[arg(long)]
         statement: PathBuf,
+        #[arg(long)]
+        expected_proof_sha256: Option<String>,
+        #[arg(long)]
+        expected_proof_size_bytes: Option<u64>,
+        #[arg(long)]
+        expected_statement_sha256: Option<String>,
+        #[arg(long, value_enum)]
+        expected_mode: Option<ProofMode>,
+        #[arg(long)]
+        expected_vkey: Option<String>,
     },
     /// Print the SP1 verification-key commitment for this program.
     Vkey,
@@ -194,6 +205,7 @@ struct NetworkConfig {
 }
 
 fn enforce_file_limit(path: &Path, maximum: u64, kind: &str) -> Result<()> {
+    enforce_regular_file(path, kind)?;
     let size = fs::metadata(path)
         .with_context(|| format!("failed to stat {}", path.display()))?
         .len();
@@ -201,6 +213,47 @@ fn enforce_file_limit(path: &Path, maximum: u64, kind: &str) -> Result<()> {
         bail!("{kind} file is {size} bytes, exceeding the {maximum}-byte limit");
     }
     Ok(())
+}
+
+fn enforce_regular_file(path: &Path, kind: &str) -> Result<()> {
+    let metadata = fs::symlink_metadata(path)
+        .with_context(|| format!("failed to inspect {}", path.display()))?;
+    let file_type = metadata.file_type();
+    if file_type.is_symlink() {
+        bail!("{kind} path must not be a symbolic link");
+    }
+    if !file_type.is_file() {
+        bail!("{kind} path must be a regular file");
+    }
+    Ok(())
+}
+
+fn sha256_path(path: &Path) -> Result<String> {
+    use sha2::{Digest, Sha256};
+
+    let mut file = fs::File::open(path)
+        .with_context(|| format!("failed to open {} for hashing", path.display()))?;
+    let mut hasher = Sha256::new();
+    let mut buffer = [0u8; 64 * 1024];
+    loop {
+        let read = file
+            .read(&mut buffer)
+            .with_context(|| format!("failed to hash {}", path.display()))?;
+        if read == 0 {
+            break;
+        }
+        hasher.update(&buffer[..read]);
+    }
+    Ok(hex::encode(hasher.finalize()))
+}
+
+fn normalize_hex(value: &str) -> String {
+    value
+        .trim()
+        .trim_matches('"')
+        .strip_prefix("0x")
+        .unwrap_or_else(|| value.trim().trim_matches('"'))
+        .to_ascii_lowercase()
 }
 
 fn read_instance(path: &Path) -> Result<InstanceFile> {
@@ -978,15 +1031,54 @@ async fn main() -> Result<()> {
             println!("manifest: {}", manifest.display());
             println!("receipt: {}", receipt.display());
         }
-        Command::Verify { proof, statement } => {
+        Command::Verify {
+            proof,
+            statement,
+            expected_proof_sha256,
+            expected_proof_size_bytes,
+            expected_statement_sha256,
+            expected_mode,
+            expected_vkey,
+        } => {
             let instance = read_instance(&statement)?;
-            let client = ProverClient::builder().cpu().build().await;
-            let proving_key = client.setup(ELF).await?;
             enforce_file_limit(&proof, MAX_PROOF_BYTES, "proof")?;
+            let proof_size = fs::metadata(&proof)?.len();
+            if let Some(expected_size) = expected_proof_size_bytes {
+                if proof_size != expected_size {
+                    bail!("proof file size {proof_size} does not match expected {expected_size}");
+                }
+            }
+            if let Some(expected_hash) = expected_proof_sha256 {
+                let actual = sha256_path(&proof)?;
+                if actual != normalize_hex(&expected_hash) {
+                    bail!("proof file SHA-256 does not match expected value");
+                }
+            }
+            if let Some(expected_hash) = expected_statement_sha256 {
+                let actual = sha256_path(&statement)?;
+                if actual != normalize_hex(&expected_hash) {
+                    bail!("statement file SHA-256 does not match expected value");
+                }
+            }
             let proof = SP1ProofWithPublicValues::load(&proof)?;
-            client.verify(&proof, proving_key.verifying_key(), None)?;
+            if let Some(mode) = expected_mode {
+                if !proof_has_mode(&proof, mode) {
+                    bail!("proof mode does not match expected {}", mode.as_str());
+                }
+            }
             let values = decode_public_values(&proof)?;
             check_public_values(&values, &instance.statement)?;
+            let client = ProverClient::builder().cpu().build().await;
+            let proving_key = client.setup(ELF).await?;
+            if let Some(expected) = expected_vkey {
+                let actual = format!("{:?}", proving_key.verifying_key().bytes32());
+                let expected = normalize_hex(&expected);
+                let actual = normalize_hex(&actual);
+                if expected != actual {
+                    bail!("derived verification key does not match expected value");
+                }
+            }
+            client.verify(&proof, proving_key.verifying_key(), None)?;
             println!("proof verified and bound to statement");
             println!(
                 "statement digest: 0x{}",

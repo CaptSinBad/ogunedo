@@ -23,10 +23,12 @@
 
 ## Required before real-value deployment
 
-- [ ] Reproduce a full SP1 build and proof on a clean pinned environment
+- [x] Reproduce the development compressed SP1 verification path on a clean pinned Linux/VPS environment
+- [ ] Reproduce a production Groth16 proof on a clean pinned environment
 - [x] Commit `Cargo.lock` generated from pinned workspace dependencies
 - [ ] Reproduce `Cargo.lock` generation on the Linux SP1 CI environment
-- [ ] Record and independently verify the program verification-key commitment
+- [x] Record and independently verify the development compressed program verification-key commitment
+- [ ] Record and independently verify the production Groth16 release verification key
 - [ ] Complete module-ISIS parameter cryptanalysis
 - [ ] Add at least one `ProductionApproved` parameter profile
 - [ ] Audit `ogunedo-core`, the guest boundary, and verifier integration
@@ -38,13 +40,15 @@
 
 ## Paid network proof gate
 
-The network lifecycle is implemented but must not be described as completed until the paid request has actually run:
+The compressed network lifecycle has completed on the VPS evidence path. Groth16 remains open:
 
-- [ ] `network-estimate` generated `artifacts/network-preflight.json` from the public benchmark fixture
-- [ ] Owner supplied the exact approval phrase from the preflight
-- [ ] Development compressed request submitted to the Succinct Prover Network
-- [ ] Downloaded compressed proof verified immediately
-- [ ] Downloaded compressed proof verified again in a fresh credential-free process
+- [x] `network-estimate` generated `artifacts/network-preflight.json` from the public benchmark fixture
+- [x] Owner supplied the exact approval phrase from the preflight
+- [x] Development compressed request submitted to the Succinct Prover Network
+- [x] Downloaded compressed proof verified immediately on the VPS
+- [x] Downloaded compressed proof verified again in a fresh credential-free VPS process
+- [x] Downloaded compressed proof verified with explicit proof hash, proof size, statement hash, proof mode, and vkey bindings
+- [x] Compressed proof adversarial/tamper matrix passed
 - [ ] Production Groth16 preflight regenerated after compressed proof success
 - [ ] Owner supplied a fresh exact approval phrase if the spend changed
 - [ ] Production Groth16 request submitted
