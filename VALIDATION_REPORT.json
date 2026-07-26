@@ -1,0 +1,75 @@
+{
+  "validator": "Ogunedo offline bundle validator v1",
+  "limitations": [
+    "This report is an offline source-tree validator.",
+    "It does not claim that SP1 execution or proof generation ran here.",
+    "Rust/SP1 build status is tracked separately in BUILD_STATUS.md."
+  ],
+  "structured_files": {
+    "toml": 8,
+    "json": 5,
+    "yaml": 3,
+    "passed": true
+  },
+  "script_syntax": {
+    "shell_files": 3,
+    "python_files": 3,
+    "passed": true
+  },
+  "development_fixture": {
+    "target": [
+      4,
+      85,
+      69,
+      38,
+      62,
+      25,
+      70,
+      96
+    ],
+    "statement_digest": "f3de5a839d4db50144386649bdc24cae6c1d6968a5960ebfb97cef0638595fcb",
+    "witness_l2_squared": 65,
+    "tampered_target_rejected": true,
+    "tampered_witness_rejected": true,
+    "context_binding_verified": true,
+    "passed": true
+  },
+  "remote_benchmark_fixture": {
+    "fixture": "fixtures/public-benchmark-instance.json",
+    "parameter_id": "0x4f470101",
+    "safe_for_remote_proving": true,
+    "witness_classification": "public deterministic benchmark witness",
+    "target_length": 256,
+    "statement_digest": "7f72d8f19ef1429a3a9dbd527301815794af4d87460720501835788555535ce1",
+    "witness_l2_squared": 9215,
+    "passed": true
+  },
+  "draft_profile": {
+    "parameter_id": "0x4f470101",
+    "ntt_matches_schoolbook": true,
+    "target_length": 256,
+    "target_sha256": "0c36efd1b231fcee51ba6216f0746ccd1633fd728e13012a5aca1bce103cb8bc",
+    "witness_l2_squared": 9215,
+    "passed": true
+  },
+  "randomized_differential": {
+    "fixed_rng_seed_hex": "0x4f47554e45444f",
+    "ntt_schoolbook_rounds": {
+      "0x4f470001": 64,
+      "0x4f470101": 8
+    },
+    "matrix_expansion_deterministic": true,
+    "matrix_column_separation_checked": true,
+    "passed": true
+  },
+  "version_pins": {
+    "sp1": "6.2.2",
+    "sp1_sdk_features": [
+      "native-gnark",
+      "network"
+    ],
+    "sha2": "0.10.8",
+    "passed": true
+  },
+  "overall_passed": true
+}

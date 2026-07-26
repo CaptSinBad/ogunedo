@@ -1,0 +1,6 @@
+Ogunedo
+Copyright 2026 Ifeanyi Ogunedo
+
+This product includes an integration with SP1, developed by Succinct Labs and
+licensed separately by its authors. SP1 is not redistributed in this source
+archive; it is consumed as a pinned Cargo dependency.

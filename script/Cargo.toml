@@ -1,0 +1,32 @@
+[package]
+name = "ogunedo-cli"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+default-run = "ogunedo"
+publish = false
+
+[[bin]]
+name = "ogunedo"
+path = "src/main.rs"
+
+[dependencies]
+alloy-tx-macros = "=1.0.30"
+anyhow.workspace = true
+bincode.workspace = true
+clap.workspace = true
+hex.workspace = true
+ogunedo-core = { workspace = true, features = ["std"] }
+rand.workspace = true
+rand_chacha.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+sp1-sdk.workspace = true
+tokio.workspace = true
+
+[build-dependencies]
+sp1-build.workspace = true

@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use Ogunedo, cite this software and the accompanying specification."
+title: "The Ogunedo Proof System"
+type: software
+authors:
+  - family-names: Ogunedo
+    given-names: Ifeanyi Joseph
+    alias: CaptSinBad
+    email: josephnedo007@gmail.com
+repository-code: "https://github.com/CaptSinBad/ogunedo"
+url: "https://github.com/CaptSinBad/ogunedo"
+version: 0.1.0
+date-released: 2026-07-24
+license: "Apache-2.0 OR MIT"
+keywords:
+  - zero-knowledge proofs
+  - SP1
+  - module-SIS
+  - K-ISIS
+  - Keller maps
+  - lattice cryptography
+abstract: >-
+  An SP1-backed proof-of-knowledge implementation for bounded module-lattice
+  preimages and the production execution layer of the Ogunedo/Keller research program.
