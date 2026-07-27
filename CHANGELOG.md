@@ -13,4 +13,5 @@
 - Add implementation-audit and reproducible-build status documents.
 - Generate and commit `Cargo.lock`.
 - Add fail-closed Succinct Prover Network preflight/submission commands guarded by `safe_for_remote_proving=true`, exact approval phrases, sanitized receipts, and credential-free verification.
-- Add a deterministic public benchmark fixture for remote proving; no paid proof artifact is claimed in this source tree.
+- Add a deterministic public benchmark fixture for remote proving; proof binaries remain ignored by Git and are distributed only through explicit evidence bundles.
+- Record completed production-profile Groth16 network proof evidence for the public benchmark fixture, including request ID, proof hash, statement binding, credential-free VPS verification, and adversarial verifier checks.

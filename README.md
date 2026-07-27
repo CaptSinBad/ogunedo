@@ -36,7 +36,7 @@ The relation implementation includes:
 
 ## Build status
 
-This source tree has passed local `ogunedo-core` Rust tests, clippy, no-default-features compilation, documentation generation, SP1 guest crate checking, the independent Python arithmetic model, deterministic test-vector regeneration, structured-file parsing, and script syntax checks recorded in [`VALIDATION_REPORT.json`](VALIDATION_REPORT.json). The SP1 host CLI and full workspace do not compile on this Windows host because an upstream SP1 JIT dependency requires POSIX APIs; no local SP1 proof is claimed. [`BUILD_STATUS.md`](BUILD_STATUS.md) records the exact commands and blocked gates.
+This source tree has passed local `ogunedo-core` Rust tests, clippy, no-default-features compilation, documentation generation, SP1 guest crate checking, the independent Python arithmetic model, deterministic test-vector regeneration, structured-file parsing, and script syntax checks recorded in [`VALIDATION_REPORT.json`](VALIDATION_REPORT.json). The SP1 host CLI and full workspace do not compile on this Windows host because an upstream SP1 JIT dependency requires POSIX APIs; Linux/SP1 evidence is recorded separately. [`BUILD_STATUS.md`](BUILD_STATUS.md) records the exact commands, blocked local gates, VPS verification results, and network proof evidence.
 
 ## Repository layout
 
@@ -172,7 +172,7 @@ cargo run --release -p ogunedo-cli -- network-prove \
   --allow-unreviewed-parameters
 ```
 
-This repository currently contains the guarded network request lifecycle, not a completed paid proof. A production Groth16 request must follow a successful compressed development request and fresh credential-free verification.
+The guarded network lifecycle has now produced both a completed compressed proof path and a production-profile Groth16 network proof for the public benchmark fixture. The production Groth16 proof is hash-recorded and credential-free verified on the Linux VPS; see [Production Groth16 evidence](docs/PRODUCTION_GROTH16_EVIDENCE.md). Proof artifacts remain ignored by Git and are packaged separately from the source archive.
 
 Generate a compressed proof with a development parameter set:
 
@@ -235,6 +235,7 @@ Commit the resulting `Cargo.lock` and record the SP1 verification-key commitment
 - [Implementation audit](docs/IMPLEMENTATION_AUDIT.md)
 - [Reproducible builds](docs/REPRODUCIBLE_BUILDS.md)
 - [Network proving](docs/NETWORK_PROVING.md)
+- [Production Groth16 evidence](docs/PRODUCTION_GROTH16_EVIDENCE.md)
 
 ## License
 

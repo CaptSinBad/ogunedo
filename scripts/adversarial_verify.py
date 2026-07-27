@@ -151,6 +151,14 @@ def manifest_case(name: str, manifest: dict[str, Any], expected: dict[str, Any])
     }
 
 
+def opposite_mode(mode: str) -> str:
+    if mode == "compressed":
+        return "groth16"
+    if mode == "groth16":
+        return "compressed"
+    return "compressed"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--binary", required=True, type=Path)
@@ -264,11 +272,12 @@ def main() -> int:
         mutate_statement(args.statement, mutated_statement, mutation)
         add_verify_case(f"statement_{mutation}_tamper", args.proof, mutated_statement)
 
+    mode_mismatch = opposite_mode(preflight["proof_mode"])
     add_verify_case(
-        "compressed_proof_presented_as_groth16",
+        f"{preflight['proof_mode']}_proof_presented_as_{mode_mismatch}",
         args.proof,
         args.statement,
-        ["--expected-mode", "groth16"],
+        ["--expected-mode", mode_mismatch],
     )
 
     add_verify_case(
@@ -277,7 +286,7 @@ def main() -> int:
         args.statement,
         [
             "--expected-mode",
-            "compressed",
+            preflight["proof_mode"],
             "--expected-vkey",
             "0xdeadbeef",
         ],
@@ -287,7 +296,7 @@ def main() -> int:
     manifest_mutations = {
         "manifest_wrong_proof_hash": ("proof_sha256", "00" * 32),
         "manifest_wrong_statement_digest": ("statement_digest", "0x" + "11" * 32),
-        "manifest_wrong_mode": ("proof_mode", "groth16"),
+        "manifest_wrong_mode": ("proof_mode", mode_mismatch),
         "manifest_wrong_vkey": ("vkey", "0x" + "22" * 32),
         "manifest_wrong_network": ("network", "testnet"),
     }
