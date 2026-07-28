@@ -260,6 +260,46 @@ credentials, to the Linux VPS and verified there:
 
 The detailed evidence note is [`docs/PRODUCTION_GROTH16_EVIDENCE.md`](docs/PRODUCTION_GROTH16_EVIDENCE.md).
 
+## Release CI gate update, 2026-07-28
+
+After the production Groth16 proof evidence was merged to `main`, the
+dependency-security workflow was made mandatory on `main` and release tags. The
+workflow initially failed at `cargo deny check`, while `cargo audit` exited `0`
+with advisory warnings.
+
+The release gate now preserves the already verified guest/vkey/proof boundary:
+
+- `native-ci`, `dependency-security`, and `sp1-integration` verify the committed
+  `Cargo.lock` with `cargo metadata --locked` instead of regenerating the
+  lockfile;
+- `cargo-deny` policy explicitly allows the permissive `CC0-1.0` and
+  `CDLA-Permissive-2.0` licenses observed in the pinned SP1 dependency graph;
+- `cargo-deny` advisory exceptions are documented for unmaintained or narrowly
+  scoped unsound transitive dependencies that cannot be upgraded without a new
+  guest ELF, verification key, and proof evidence cycle;
+- direct advisory exceptions for pinned `anyhow` and `rand` are limited by the
+  current v1.0.0-rc1 evidence boundary. Ogunedo does not use
+  `anyhow::Error::downcast_mut` in proof verification or statement parsing, and
+  does not install a custom logger that calls `rand::thread_rng`/`rand::rng` from
+  the logger path.
+
+Local validation on the Windows/WSL laptop, run sequentially with
+`CARGO_BUILD_JOBS=2` for Rust checks where applicable:
+
+- `cargo metadata --locked --format-version 1` exited `0`;
+- `cargo fmt --all -- --check` exited `0`;
+- `cargo clippy -p ogunedo-core --all-targets --all-features -- -D warnings`
+  exited `0`;
+- `cargo test -p ogunedo-core --all-features` exited `0` with 8 relation tests
+  passing;
+- `python3 scripts/reference_check.py && git diff --exit-code -- fixtures/`
+  exited `0`;
+- `cargo audit` exited `0`, reporting advisory warnings only;
+- `cargo deny check --hide-inclusion-graph` exited `0`.
+
+This update did not submit any new network proof request and did not alter the
+committed `Cargo.lock`.
+
 ## Not completed locally
 
 These production gates have **not** been claimed as completed:

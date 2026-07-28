@@ -21,8 +21,8 @@ jobs:
         run: |
           rustup toolchain install 1.91.1 --profile minimal
           rustup default 1.91.1
-      - name: Generate lockfile when validating an unreleased source tree
-        run: cargo generate-lockfile
+      - name: Verify committed dependency lockfile
+        run: cargo metadata --locked --format-version 1 > /tmp/ogunedo-metadata.json
       - uses: taiki-e/install-action@cargo-audit
       - uses: taiki-e/install-action@cargo-deny
       - run: cargo audit

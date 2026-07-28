@@ -27,7 +27,7 @@
 - [x] Generate and reload-verify a local development Groth16 proof on the VPS
 - [x] Verify the production-profile Groth16 network proof on a clean pinned Linux/VPS environment
 - [x] Commit `Cargo.lock` generated from pinned workspace dependencies
-- [ ] Reproduce `Cargo.lock` generation on the Linux SP1 CI environment
+- [ ] Verify the committed `Cargo.lock` on the Linux SP1 CI environment
 - [x] Record and independently verify the development compressed program verification-key commitment
 - [x] Record and independently verify the production Groth16 release verification key
 - [ ] Complete module-ISIS parameter cryptanalysis
@@ -65,7 +65,7 @@ Production Groth16 evidence is recorded in
 
 A release must not be described as a production cryptographic primitive while any item above remains open. It may be described as a production-oriented proof implementation on an audited proving backend.
 
-Open release blockers as of 2026-07-27:
+Open release blockers as of 2026-07-28:
 
 - GitHub Actions have not yet run on the final candidate commit.
 - No `ProductionApproved` parameter profile exists.

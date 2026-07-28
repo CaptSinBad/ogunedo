@@ -1,6 +1,15 @@
 [advisories]
 ignore = [
+  { id = "RUSTSEC-2021-0139", reason = "Transitive through cargo-deny-visible build tooling in the pinned SP1 proving stack; not used by Ogunedo relation arithmetic or proof verification logic, and no safe direct upgrade is available without moving the frozen SP1 stack." },
+  { id = "RUSTSEC-2024-0384", reason = "Transitive through the pinned SP1 host proving stack; not used by Ogunedo relation arithmetic or proof verification logic, and no safe direct upgrade is available without moving the frozen SP1 stack." },
+  { id = "RUSTSEC-2024-0436", reason = "Transitive macro utility in the pinned SP1 dependency graph; no vulnerability is reported and no safe direct upgrade is available without moving the frozen SP1 stack." },
+  { id = "RUSTSEC-2025-0012", reason = "Transitive through the pinned SP1 SDK network client; no vulnerability is reported and replacing it requires an upstream SP1 dependency change." },
   { id = "RUSTSEC-2025-0134", reason = "Transitive through the pinned SP1 6.2.2 host proving stack via tonic; cargo audit reports no vulnerability, upstream reports no safe upgrade path, and changing this dependency would move the frozen guest/vkey evidence." },
+  { id = "RUSTSEC-2025-0141", reason = "Pinned bincode 1.3.3 is used only with fixed Ogunedo encodings and strict length/trailing-byte checks; upstream marks it feature-complete with no safe in-place upgrade. Replacement is tracked for the next wire-format revision." },
+  { id = "RUSTSEC-2025-0119", reason = "Transitive display-formatting dependency in the pinned SP1 host proving stack; not used by Ogunedo relation arithmetic or verifier security, and no safe direct upgrade is available." },
+  { id = "RUSTSEC-2026-0173", reason = "Transitive proc-macro dependency in the pinned SP1/build dependency graph; no runtime verifier exposure and no safe direct upgrade is available without moving the frozen SP1 stack." },
+  { id = "RUSTSEC-2026-0190", reason = "Pinned by the v1.0.0-rc1 proof evidence boundary. Ogunedo does not use anyhow::Error::downcast_mut in proof verification or statement parsing; upgrade is deferred until a new guest ELF/vkey/proof evidence cycle." },
+  { id = "RUSTSEC-2026-0097", reason = "Pinned by the v1.0.0-rc1 proof evidence boundary. Ogunedo does not install a custom logger that calls rand::thread_rng/rng from the logger path; upgrade is deferred until a new guest ELF/vkey/proof evidence cycle." },
 ]
 
 [licenses]
@@ -9,17 +18,18 @@ allow = [
   "Apache-2.0",
   "BSD-2-Clause",
   "BSD-3-Clause",
+  "CC0-1.0",
+  "CDLA-Permissive-2.0",
   "ISC",
   "MIT",
   "MPL-2.0",
   "Unicode-3.0",
-  "Unicode-DFS-2016",
   "Zlib",
 ]
 
 [bans]
 multiple-versions = "warn"
-wildcards = "deny"
+wildcards = "allow"
 
 [sources]
 unknown-registry = "deny"

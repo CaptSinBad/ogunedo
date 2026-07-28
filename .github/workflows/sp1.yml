@@ -33,8 +33,8 @@ jobs:
           curl --proto '=https' --tlsv1.2 -sSfL https://sp1up.succinct.xyz | bash
           echo "$HOME/.sp1/bin" >> "$GITHUB_PATH"
           "$HOME/.sp1/bin/sp1up" --version v6.2.2
-      - name: Generate dependency lockfile
-        run: cargo generate-lockfile
+      - name: Verify committed dependency lockfile
+        run: cargo metadata --locked --format-version 1 > /tmp/ogunedo-metadata.json
       - name: Compile full workspace
         env:
           CARGO_BUILD_JOBS: "2"

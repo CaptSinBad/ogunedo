@@ -16,8 +16,8 @@ jobs:
         run: |
           rustup toolchain install 1.91.1 --profile minimal --component rustfmt,clippy
           rustup default 1.91.1
-      - name: Generate dependency lockfile
-        run: cargo generate-lockfile
+      - name: Verify committed dependency lockfile
+        run: cargo metadata --locked --format-version 1 > /tmp/ogunedo-metadata.json
       - name: Format
         run: cargo fmt --all -- --check
       - name: Clippy
@@ -28,6 +28,6 @@ jobs:
         run: |
           python3 scripts/reference_check.py
           git diff --exit-code -- fixtures/
-      - name: Require committed lockfile on protected release branches
+      - name: Require clean lockfile on protected release branches
         if: startsWith(github.ref, 'refs/tags/')
         run: git diff --exit-code -- Cargo.lock
