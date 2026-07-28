@@ -304,12 +304,14 @@ committed `Cargo.lock`.
 
 These production gates have **not** been claimed as completed:
 
-- SP1 execution of the relation;
+- local SP1 execution of the relation on the 12 GB laptop;
 - production benchmarks;
 - estimator run for the draft module-ISIS profile;
-- GitHub Actions execution;
-- pull request creation;
-- release candidate tag creation.
+- GitHub prerelease asset publication.
+
+GitHub Actions have run successfully on the release-candidate source tag,
+including native CI, dependency security, and SP1 compressed proof generation
+plus bound verification.
 
 `cargo prove` is now installed in WSL through the pinned SP1 installer. `gh` was not used by this local status run.
 

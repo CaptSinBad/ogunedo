@@ -65,10 +65,9 @@ Production Groth16 evidence is recorded in
 
 A release must not be described as a production cryptographic primitive while any item above remains open. It may be described as a production-oriented proof implementation on an audited proving backend.
 
-Open release blockers as of 2026-07-28:
+Open deployment blockers as of 2026-07-28:
 
-- GitHub Actions have not yet run on the final candidate commit.
 - No `ProductionApproved` parameter profile exists.
 - Module-ISIS parameter cryptanalysis remains incomplete.
 - Independent implementation audit and public cryptanalysis remain outstanding.
-- The GitHub release tag and prerelease have not been created.
+- GitHub prerelease asset publication remains an owner/tooling step.

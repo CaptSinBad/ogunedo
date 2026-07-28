@@ -108,8 +108,9 @@ cap and below the later postflight maximum estimate.
 
 ## Remaining release limits
 
-- GitHub Actions have not yet run on the final candidate commit.
-- The release tag and GitHub prerelease have not been created.
+- GitHub Actions ran successfully on the release-candidate source tag.
+- A release-candidate Git tag has been created; GitHub prerelease asset
+  publication remains an owner/tooling step.
 - The draft parameters remain `CryptanalysisRequired`.
 - No `ProductionApproved` parameter profile exists.
 - The determinant-one Keller compiler is not implemented in the v1 software.
