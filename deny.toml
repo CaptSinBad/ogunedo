@@ -1,5 +1,7 @@
 [advisories]
-ignore = []
+ignore = [
+  { id = "RUSTSEC-2025-0134", reason = "Transitive through the pinned SP1 6.2.2 host proving stack via tonic; cargo audit reports no vulnerability, upstream reports no safe upgrade path, and changing this dependency would move the frozen guest/vkey evidence." },
+]
 
 [licenses]
 confidence-threshold = 0.93
