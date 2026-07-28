@@ -5,7 +5,7 @@
 **Prepared for:** Ifeanyi Joseph Ogunedo
 **Version:** `0.1.0-unreleased`
 **Backend pin:** SP1 `6.2.2`
-**Evidence date:** 2026-07-25
+**Evidence date:** 2026-07-27
 
 ## Completed on this machine
 
@@ -211,13 +211,60 @@ The prover reported `15,972,262` Groth16 constraints, generated and internally v
 
 A separate fresh verifier process then reloaded the Groth16 proof and verified it with explicit proof SHA-256, proof size, statement SHA-256, proof mode `groth16`, and vkey bindings. That verification exited `0`, took `2:14.00`, and recorded peak RSS `7,319,944 KiB`.
 
+## Production Groth16 network proof
+
+After the compressed lifecycle and development Groth16 path succeeded, a
+production-profile Groth16 request was submitted to the Succinct Prover Network
+for the public benchmark fixture.
+
+Production Groth16 network request evidence:
+
+- request ID: `0x6fbb657de5d99b5c7f5bc97d16a7b2c8eadba1767c1463eb992546ab4382cc8b`;
+- explorer: `https://explorer.succinct.xyz/request/0x6fbb657de5d99b5c7f5bc97d16a7b2c8eadba1767c1463eb992546ab4382cc8b`;
+- proof path: `proofs/production-groth16-network.bin`;
+- proof size: `1,798` bytes;
+- proof SHA-256: `84123b23336b9962dec4f0e63602b03156d117b56f5b370f0c86772cc2c8f64d`;
+- statement path: `artifacts/production-groth16-network-statement.json`;
+- statement SHA-256: `e80c9731bd18dd6cf5aef618e05bbdfb2ed48636d893433c83e6db7c32de6210`;
+- statement digest: `0x7f72d8f19ef1429a3a9dbd527301815794af4d87460720501835788555535ce1`;
+- guest ELF SHA-256: `fd2668813dd45f63e0675d21e1accb60aa928befc7717583e2c3728dcefebd45`;
+- SP1 vkey: `0x00802c99c8f0a957ff88e97091fea717ca15a6f51390b4a721cbb23cee0d81a1`;
+- relation digest: `0x12ca32d006589f7fa7b3edaa4c1c19d3940661ae8528917738878dfe40d88feb`;
+- parameter digest: `0xe8c8d261c2d5082a300d241434465245371db7c68b0d5df8e3a05f233af19611`.
+
+The pre-submission Groth16 maximum possible spend was
+`0.404094000005886633 PROVE`, below the standing `5 PROVE` authorization cap.
+A postflight balance query observed a requester balance delta of
+`0.404312000005886633 PROVE`; this is recorded as a before/after balance delta,
+not as a separate network invoice. A later postflight estimate reported maximum
+possible spend `0.409165000005886633 PROVE`, still below the authorization cap.
+
+The local laptop `network-prove` process saved the downloaded proof but was
+stopped during its fresh credential-free verifier subprocess because WSL memory
+approached the configured 12 GB laptop safety boundary. The stopped local
+verification is recorded as a resource-protection event, not as a protocol or
+proof failure.
+
+The downloaded production Groth16 proof was then copied, without wallet
+credentials, to the Linux VPS and verified there:
+
+- clean release build plus verification: exit `0`, elapsed `40:57.77`, peak RSS
+  `7,286,616 KiB`, swaps `0`, log
+  `artifacts/vps-production-groth16-verify-clean.log`;
+- fresh-process verification: exit `0`, elapsed `1:56.76`, peak RSS
+  `7,292,540 KiB`, swaps `0`, log
+  `artifacts/vps-production-groth16-verify-fresh.log`;
+- production Groth16 adversarial suite: exit `0`, 18/18 negative cases passed,
+  elapsed `2:25.67`, peak RSS `7,295,308 KiB`, swaps `0`, report
+  `artifacts/vps-production-groth16-adversarial.json`.
+
+The detailed evidence note is [`docs/PRODUCTION_GROTH16_EVIDENCE.md`](docs/PRODUCTION_GROTH16_EVIDENCE.md).
+
 ## Not completed locally
 
 These production gates have **not** been claimed as completed:
 
 - SP1 execution of the relation;
-- production-profile Groth16 proof generation;
-- successful Succinct Prover Network Groth16 paid request;
 - production benchmarks;
 - estimator run for the draft module-ISIS profile;
 - GitHub Actions execution;

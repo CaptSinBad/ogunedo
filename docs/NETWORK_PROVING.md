@@ -2,7 +2,17 @@
 
 This document defines the first paid proving path for Ogunedo through the Succinct Prover Network.
 
-No command in this document should be interpreted as completed unless the corresponding artifact exists and verifies. The current source tree implements the guarded lifecycle; it does not include a downloaded network proof.
+No command in this document should be interpreted as completed unless the corresponding artifact exists and verifies.
+
+The first public benchmark lifecycle has completed for both:
+
+- development compressed mode; and
+- production-profile Groth16 mode.
+
+Production Groth16 evidence is recorded in
+[`PRODUCTION_GROTH16_EVIDENCE.md`](PRODUCTION_GROTH16_EVIDENCE.md). The proof
+artifacts themselves are ignored by Git and should be distributed only through
+explicit release evidence bundles.
 
 ## Secret handling
 
@@ -72,7 +82,8 @@ It must not contain private keys, mnemonics, wallet JSON, full environment dumps
 
 ## Exact approval
 
-After preflight, stop. Submission requires the exact phrase printed by the command:
+After preflight, stop unless an active runbook explicitly authorizes unattended
+submission. Submission requires the exact phrase printed by the command:
 
 ```text
 APPROVE OGUNEDO NETWORK PROOF UP TO <MAX_PROVE_AMOUNT> PROVE
@@ -109,6 +120,22 @@ Run a fresh `network-estimate --mode groth16` after the compressed proof succeed
 
 Only then run `network-prove --mode groth16`.
 
+The first production Groth16 request used:
+
+```text
+request ID: 0x6fbb657de5d99b5c7f5bc97d16a7b2c8eadba1767c1463eb992546ab4382cc8b
+network: mainnet
+proof mode: groth16
+proof SHA-256: 84123b23336b9962dec4f0e63602b03156d117b56f5b370f0c86772cc2c8f64d
+proof size: 1798 bytes
+statement digest: 0x7f72d8f19ef1429a3a9dbd527301815794af4d87460720501835788555535ce1
+vkey: 0x00802c99c8f0a957ff88e97091fea717ca15a6f51390b4a721cbb23cee0d81a1
+```
+
+Do not submit a second paid request to replace this evidence unless a new
+release runbook explicitly authorizes a new request and the previous request is
+accounted for.
+
 ## Credential-free verification
 
 `ogunedo verify` uses a local verifier path and does not read `.env`. Verification should succeed even when network credentials are absent.
@@ -119,12 +146,12 @@ For release evidence, bind the exact artifact bytes and verifier identity:
 unset NETWORK_PRIVATE_KEY NETWORK_RPC_URL SP1_PROVER
 
 ogunedo verify \
-  --proof proofs/development-compressed.bin \
-  --statement artifacts/development-network-statement.json \
+  --proof proofs/production-groth16-network.bin \
+  --statement artifacts/production-groth16-network-statement.json \
   --expected-proof-sha256 <downloaded-proof-sha256> \
   --expected-proof-size-bytes <downloaded-proof-size> \
   --expected-statement-sha256 <statement-file-sha256> \
-  --expected-mode compressed \
+  --expected-mode groth16 \
   --expected-vkey <vkey-from-preflight>
 ```
 
@@ -132,4 +159,8 @@ The hash and size checks are part of the release verification boundary. A file t
 
 ## Current limitation
 
-This Windows laptop cannot complete the SP1 host CLI compile within the local safety budget, and the full host-side SP1 dependency graph has an upstream POSIX/JIT boundary on this target. Run the network commands on a Linux SP1 environment or CI runner that can compile the host CLI.
+This Windows laptop cannot safely complete expensive SP1 host proving and
+verification inside the local memory envelope. The production Groth16 proof was
+downloaded locally, but fresh-process verification was moved to the credential-free
+Linux VPS after the laptop approached its configured safety boundary. Treat that
+resource stop as a local hardware limit, not as a proof failure.

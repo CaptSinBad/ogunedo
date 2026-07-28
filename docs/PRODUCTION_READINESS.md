@@ -25,11 +25,11 @@
 
 - [x] Reproduce the development compressed SP1 verification path on a clean pinned Linux/VPS environment
 - [x] Generate and reload-verify a local development Groth16 proof on the VPS
-- [ ] Reproduce a production Groth16 proof on a clean pinned environment
+- [x] Verify the production-profile Groth16 network proof on a clean pinned Linux/VPS environment
 - [x] Commit `Cargo.lock` generated from pinned workspace dependencies
 - [ ] Reproduce `Cargo.lock` generation on the Linux SP1 CI environment
 - [x] Record and independently verify the development compressed program verification-key commitment
-- [ ] Record and independently verify the production Groth16 release verification key
+- [x] Record and independently verify the production Groth16 release verification key
 - [ ] Complete module-ISIS parameter cryptanalysis
 - [ ] Add at least one `ProductionApproved` parameter profile
 - [ ] Audit `ogunedo-core`, the guest boundary, and verifier integration
@@ -50,13 +50,25 @@ The compressed network lifecycle has completed on the VPS evidence path. Groth16
 - [x] Downloaded compressed proof verified again in a fresh credential-free VPS process
 - [x] Downloaded compressed proof verified with explicit proof hash, proof size, statement hash, proof mode, and vkey bindings
 - [x] Compressed proof adversarial/tamper matrix passed
-- [ ] Production Groth16 preflight regenerated after compressed proof success
-- [ ] Owner supplied a fresh exact approval phrase if the spend changed
-- [ ] Production Groth16 request submitted
-- [ ] Production Groth16 proof downloaded, saved atomically, reloaded, and verified
+- [x] Production Groth16 preflight regenerated after compressed proof success
+- [x] Production Groth16 request submitted under the autonomous 5 PROVE cap
+- [x] Production Groth16 proof downloaded and hash-recorded
+- [x] Production Groth16 proof verified on the credential-free VPS
+- [x] Production Groth16 proof verified again in a fresh credential-free VPS process
 - [x] Development Groth16 proof generated locally on the VPS and reload-verified with hash, size, mode, statement, and vkey bindings
-- [ ] Proof, receipt, manifest, and adversarial-test reports reviewed before any tag
+- [x] Production Groth16 proof, receipt, evidence manifest, and adversarial-test reports reviewed before any tag
+
+Production Groth16 evidence is recorded in
+[`docs/PRODUCTION_GROTH16_EVIDENCE.md`](PRODUCTION_GROTH16_EVIDENCE.md).
 
 ## Release gate
 
 A release must not be described as a production cryptographic primitive while any item above remains open. It may be described as a production-oriented proof implementation on an audited proving backend.
+
+Open release blockers as of 2026-07-27:
+
+- GitHub Actions have not yet run on the final candidate commit.
+- No `ProductionApproved` parameter profile exists.
+- Module-ISIS parameter cryptanalysis remains incomplete.
+- Independent implementation audit and public cryptanalysis remain outstanding.
+- The GitHub release tag and prerelease have not been created.
